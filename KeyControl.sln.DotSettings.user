@@ -1,0 +1,17 @@
+﻿<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
+	<s:Boolean x:Key="/Default/AddReferences/RecentPaths/=S_003A_005CCode_005CC_0023_005Cown_005CPlayifyUtils2_005CPlayifyUtils_002EWeb_005Cbin_005CDebug_005CPlayifyUtils_002EWeb_002Edll/@EntryIndexedValue">True</s:Boolean>
+	<s:Boolean x:Key="/Default/AddReferences/RecentPaths/=S_003A_005CCode_005CC_0023_005Cown_005CPlayifyUtils3_005Cbin_005CDebug_005Cnet48_005CPlayifyUtils_002Edll/@EntryIndexedValue">True</s:Boolean>
+	<s:Boolean x:Key="/Default/AddReferences/RecentPaths/=S_003A_005CCode_005CC_0023_005Cown_005CPlayifyUtils3_005Cbin_005CDebug_005Cnet5_002E0_005CPlayifyUtils_002Edll/@EntryIndexedValue">True</s:Boolean>
+	<s:String x:Key="/Default/Environment/AssemblyExplorer/XmlDocument/@EntryValue">&lt;AssemblyExplorer&gt;&#xD;
+  &lt;Assembly Path="S:\Code\C#\own\PlayifyUtils3\bin\Debug\net48\PlayifyUtils.dll" /&gt;&#xD;
+  &lt;Assembly Path="S:\Code\C#\own\KeyControl\bin\Debug\AsyncExtensions.dll" /&gt;&#xD;
+  &lt;Assembly Path="C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8\System.dll" /&gt;&#xD;
+  &lt;Assembly Path="C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8\mscorlib.dll" /&gt;&#xD;
+  &lt;Assembly Path="C:\Users\ShulkerHD\.nuget\packages\inputsimulator\1.0.4\lib\net20\WindowsInput.dll" /&gt;&#xD;
+  &lt;Assembly Path="C:\Windows\Microsoft.NET\Framework64\v2.0.50727\mscorlib.dll" /&gt;&#xD;
+  &lt;Assembly Path="C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8\PresentationCore.dll" /&gt;&#xD;
+  &lt;Assembly Path="C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8\WindowsBase.dll" /&gt;&#xD;
+&lt;/AssemblyExplorer&gt;</s:String>
+	<s:Boolean x:Key="/Default/ResxEditorPersonal/CheckedGroups/=KeyControl_002FHooks_002FGlobalShellHook/@EntryIndexedValue">True</s:Boolean>
+	
+	<s:Boolean x:Key="/Default/ResxEditorPersonal/Initialized/@EntryValue">True</s:Boolean></wpf:ResourceDictionary>

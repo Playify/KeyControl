@@ -1,0 +1,161 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <Import Project="packages\ILMerge.3.0.29\build\ILMerge.props" Condition="Exists('packages\ILMerge.3.0.29\build\ILMerge.props')" />
+    <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+    <PropertyGroup>
+        <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+        <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+        <ProjectGuid>{1CE37DD8-F002-4BDA-A2A6-E2C642849075}</ProjectGuid>
+        <AppDesignerFolder>Properties</AppDesignerFolder>
+        <RootNamespace>KeyControl</RootNamespace>
+        <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+        <FileAlignment>512</FileAlignment>
+        <LangVersion>latest</LangVersion>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <ApplicationIcon>Resources/favicon.ico</ApplicationIcon>
+        <Version>2</Version>
+        <Nullable>disable</Nullable>
+    </PropertyGroup>
+    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+        <AssemblyName>KeyControl</AssemblyName>
+        <OutputType>Exe</OutputType>
+        <PlatformTarget>x64</PlatformTarget>
+        <DebugSymbols>true</DebugSymbols>
+        <DebugType>full</DebugType>
+        <Optimize>false</Optimize>
+        <OutputPath>bin\Debug\</OutputPath>
+        <DefineConstants>DEBUG;TRACE</DefineConstants>
+        <ErrorReport>prompt</ErrorReport>
+        <WarningLevel>4</WarningLevel>
+        <Prefer32bit>false</Prefer32bit>
+    </PropertyGroup>
+    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+        <OutputType>WinExe</OutputType>
+        <PlatformTarget>x64</PlatformTarget>
+        <DebugType>pdbonly</DebugType>
+        <Optimize>true</Optimize>
+        <OutputPath>bin\Release\</OutputPath>
+        <DefineConstants>TRACE</DefineConstants>
+        <ErrorReport>prompt</ErrorReport>
+        <WarningLevel>4</WarningLevel>
+        <Prefer32bit>false</Prefer32bit>
+    </PropertyGroup>
+    <ItemGroup>
+        <Reference Include="Microsoft.CSharp" />
+        <Reference Include="PlayifyUtils, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+          <HintPath>..\PlayifyUtils3\bin\Debug\net48\PlayifyUtils.dll</HintPath>
+        </Reference>
+        <Reference Include="PresentationCore" />
+        <Reference Include="System" />
+        <Reference Include="System.Core" />
+        <Reference Include="System.Data" />
+        <Reference Include="System.Drawing" />
+        <Reference Include="System.Management" />
+        <Reference Include="System.Numerics" />
+        <Reference Include="System.Windows" />
+        <Reference Include="System.Windows.Forms" />
+        <Reference Include="System.Xml" />
+        <Reference Include="WindowsBase" />
+    </ItemGroup>
+    <ItemGroup>
+        <Compile Include="Features\CapsLock.cs" />
+        <Compile Include="Features\Games\CrossHair.cs" />
+        <Compile Include="Features\Games\Wasd.cs" />
+        <Compile Include="Features\NamingHelper.cs" />
+        <Compile Include="Features\Spammer.cs" />
+        <Compile Include="Features\SpecialChars.cs" />
+        <Compile Include="Hooks\GlobalEventHook.cs" />
+        <Compile Include="Hooks\GlobalKeyboardHook.cs" />
+        <Compile Include="Hooks\GlobalMouseHook.cs" />
+        <Compile Include="Hooks\KeyEvent.cs" />
+        <Compile Include="Hooks\MouseEvent.cs" />
+        <Compile Include="Hooks\GlobalShellHook.cs" />
+        <Compile Include="HotKeyHandler\HotStringHandler.cs" />
+        <Compile Include="HotKeyHandler\KeyboardHandler.cs" />
+        <Compile Include="HotKeyHandler\MouseHandler.cs" />
+        <Compile Include="Hotstring\Complex\HotStringComplexCalc.cs" />
+        <Compile Include="Hotstring\Complex\HotStringComplexFlip.cs" />
+        <Compile Include="Hotstring\Complex\HotStringComplexNumberConverter.cs" />
+        <Compile Include="Hotstring\Complex\HotStringComplexUnicode.cs" />
+        <Compile Include="Hotstring\HotStringRaw.cs" />
+        <Compile Include="Hotstring\HotStringBase.cs" />
+        <Compile Include="Hotstring\Saveable\HotStringCategory.cs" />
+        <Compile Include="Hotstring\Saveable\HotStringEmoji.cs" />
+        <Compile Include="Hotstring\Saveable\HotStringError.cs" />
+        <Compile Include="Hotstring\Saveable\HotStringKeepCase.cs" />
+        <Compile Include="Hotstring\Saveable\HotStringRegex.cs" />
+        <Compile Include="Hotstring\Saveable\HotStringReplace.cs" />
+        <Compile Include="Interfaces\Config.cs" />
+        <Compile Include="Interfaces\External.cs" />
+        <Compile Include="Interfaces\ConfigProvider.cs" />
+        <Compile Include="Interfaces\ConfigWindow.cs" />
+        <Compile Include="Interfaces\Logger.cs" />
+        <Compile Include="Interfaces\Modifiers.cs" />
+        <Compile Include="Interfaces\Text.cs" />
+        <Compile Include="Interfaces\TrayIcon.cs" />
+        <Compile Include="Interfaces\Windows.cs" />
+        <Compile Include="Program.cs" />
+        <Compile Include="Properties\AssemblyInfo.cs" />
+        <Compile Include="Utilities\Scheduler.cs" />
+        <Compile Include="Utilities\Send.cs">
+            <DependentUpon>Text.cs</DependentUpon>
+        </Compile>
+        <Compile Include="Utilities\SendBuilder.cs" />
+        <Compile Include="Utilities\SendBuilder.Proto.cs" />
+        <Compile Include="Utilities\Utils.cs" />
+    </ItemGroup>
+    <ItemGroup>
+        <None Include="packages.config" />
+    </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="AsyncFriendlyStackTrace" Version="1.6.0" />
+        <PackageReference Include="ILMerge" Version="3.0.29" />
+        <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="6.0.0-preview.3.21201.4" />
+        <PackageReference Include="NCalc-Edge" Version="1.5.0" />
+    </ItemGroup>
+    <ItemGroup>
+        <EmbeddedResource Include="Hooks\GlobalShellHook.resx">
+          <DependentUpon>GlobalShellHook.cs</DependentUpon>
+        </EmbeddedResource>
+        <EmbeddedResource Include="Resources\**" />
+    </ItemGroup>
+    <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+    <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+        <PropertyGroup>
+            <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them. For more information, see http://go.microsoft.com/fwlink/?LinkID=322105.The missing file is {0}.</ErrorText>
+        </PropertyGroup>
+        <Error Condition="!Exists('packages\ILMerge.3.0.29\build\ILMerge.props')" Text="$([System.String]::Format('$(ErrorText)', 'packages\ILMerge.3.0.29\build\ILMerge.props'))" />
+    </Target>
+   <!-- <Target Name="AfterBuild" Condition=" '$(ConfigurationName)' == 'Release' " BeforeTargets="PostBuildEvent">
+        <CreateItem Include="@(ReferenceCopyLocalPaths)" Condition="'%(Extension)'=='.dll'">
+            <Output ItemName="AssembliesToMerge" TaskParameter="Include" />
+        </CreateItem>
+        <Exec ConsoleToMSBuild="true" Command="&quot;$(ILMergeConsolePath)&quot; /out:bin\KeyControl.exe /union $(TargetDir)*.exe S:\Code\C#\own\PlayifyUtils2\PlayifyUtils.Web\bin\Debug\*.dll $(TargetDir)*.dll /target:winexe /wildcards">
+            <Output TaskParameter="ConsoleOutput" ItemName="OutputOfExec" />
+        </Exec>&lt;!&ndash;
+        <Exec ConsoleToMSBuild="true" Command="&quot;$(ILMergeConsolePath)&quot; /out:bin\KeyControl.exe /closed /union &quot;@(IntermediateAssembly)&quot; @(AssembliesToMerge->'&quot;%(FullPath)&quot;', ' ')">
+            <Output TaskParameter="ConsoleOutput" ItemName="OutputOfExec" />
+        </Exec>&ndash;&gt;
+    </Target>-->
+    
+    <!--
+    <Target Name="ILMerge" AfterTargets="Build" Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+        &lt;!&ndash; the ILMergePath property points to the location of ILMerge.exe console application &ndash;&gt;
+        <ItemGroup>
+            <AssembliesTomerge Include="S:\Code\C#\own\KeyControl\bin\Release\KeyControl.exe"/>
+            <AssembliesToMerge Include="S:\Code\C#\own\KeyControl\bin\Release\*.dll"/>
+        </ItemGroup>
+        <Exec Command="$(ILMergeConsolePath)
+        /target:winexe
+        /out:bin\KeyControl.exe
+        %(ILMerge.AssembliesTomerge)" />
+        
+    </Target>-->
+    <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
+           Other similar extension points exist, see Microsoft.Common.targets.
+      <Target Name="BeforeBuild">
+      </Target>
+      <Target Name="AfterBuild">
+      </Target>
+      -->
+</Project>

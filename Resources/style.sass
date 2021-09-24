@@ -1,0 +1,550 @@
+html, body
+	width: 100%
+	height: 100%
+	margin: 0
+
+*
+	font-family: "Helvetica", "Arial", Times, Symbola, "Noto Color Emoji", "Apple Color Emoji", "Segoe UI Emoji", sans-serif, LastResort
+
+nav
+	float: left
+	overflow-y: auto
+	background: green
+	height: 100%
+
+	display: flex
+	flex-direction: column
+
+	.spacer
+		margin-top: auto
+
+	a
+		display: block
+		padding: 8px 14px
+		text-decoration: none
+		color: white
+
+		font-size: 1.25em
+		font-weight: bold
+
+		user-select: none
+
+		transition: color linear .1s, padding linear .1s
+
+		sub
+			font-weight: normal
+
+
+		&.active
+			padding-left: 20px
+			padding-right: 8px
+			font-weight: bolder
+			color: #0f0
+
+		&:hover
+			background-color: rgba(255, 255, 255, .1)
+
+html.rainbow
+	nav
+		animation: rainbow 6s linear -2s infinite
+
+		a.active
+			animation: rainbowText 6s linear 0s infinite
+
+
+@keyframes rainbow
+	100%, 0%
+		background-color: rgb(255, 0, 0)
+	8%
+		background-color: rgb(255, 127, 0)
+	16%
+		background-color: rgb(255, 255, 0)
+	25%
+		background-color: rgb(127, 255, 0)
+	33%
+		background-color: rgb(0, 255, 0)
+	41%
+		background-color: rgb(0, 255, 127)
+	50%
+		background-color: rgb(0, 255, 255)
+	58%
+		background-color: rgb(0, 127, 255)
+	66%
+		background-color: rgb(0, 0, 255)
+	75%
+		background-color: rgb(127, 0, 255)
+	83%
+		background-color: rgb(255, 0, 255)
+	91%
+		background-color: rgb(255, 0, 127)
+
+@keyframes rainbowText
+	100%, 0%
+		color: rgb(255, 0, 0)
+	8%
+		color: rgb(255, 127, 0)
+	16%
+		color: rgb(255, 255, 0)
+	25%
+		color: rgb(127, 255, 0)
+	33%
+		color: rgb(0, 255, 0)
+	41%
+		color: rgb(0, 255, 127)
+	50%
+		color: rgb(0, 255, 255)
+	58%
+		color: rgb(0, 127, 255)
+	66%
+		color: rgb(0, 0, 255)
+	75%
+		color: rgb(127, 0, 255)
+	83%
+		color: rgb(255, 0, 255)
+	91%
+		color: rgb(255, 0, 127)
+
+main
+	height: 100%
+	overflow: auto
+	display: block
+	position: relative
+
+	> *
+		position: absolute
+		left: 0
+		top: 0
+		right: 0
+		bottom: 0
+
+	> :not(.active)
+		display: none
+
+.shiftInfo
+	margin: 4px
+	text-align: center
+
+table
+	border-collapse: collapse
+	width: 100%
+
+.title
+	font-size: 1.25em
+	font-weight: bold
+
+tr + tr.title
+	border-top: 16px solid transparent
+
+td
+	padding: 4px 8px
+	height: 20px
+	vertical-align: middle
+
+tr + tr.title > td
+	padding-top: 8px
+
+
+main > * > table > tbody > tr:not(.title)
+	& > td:first-child
+		padding-left: 12px
+
+	& + tr:not(.title)
+		border-top: 1px solid #ddd
+
+input[type="text"], input:not([type]), textarea
+	width: 100%
+	height: 24px
+	border: 1px solid #999
+	padding: 4px
+	box-sizing: border-box
+	color: black
+	margin: 0
+	outline: none
+	line-height: 18px
+
+	&:focus
+		border-color: #000
+
+	&.error
+		border-color: red
+
+textarea
+	min-height: 26px
+	resize: none
+	overflow: hidden
+	height: auto
+
+main > textarea
+	overflow: auto
+	height: 100%
+
+
+//Keycombo
+
+.key
+	box-sizing: border-box
+	border-radius: 3px
+	border: 1px solid black
+	background-color: #ddd
+	padding: 1px 4px
+	margin: 2px 2px
+	vertical-align: center
+	box-shadow: 1px 1px 1px 0
+	font-size: 14px
+	line-height: 18px
+	//align text in center of "Button"
+
+	.input &
+		background-color: #bfb
+
+.keycombo, .hotstring
+	margin: 0 4px
+
+//Hotstrings
+
+.hotstring, .replacement
+	color: #444
+	background-color: #d6d7d7
+	padding: 2px 4px
+	min-width: 2px
+	border-radius: 2px
+
+	i
+		font-weight: bold
+
+#hotstrings
+	*
+		pointer-events: none
+		user-select: none
+
+	abbr,
+	input,
+	.box,
+	.addNew > div,
+	.hotstringContainer,
+	.category
+		pointer-events: auto
+		user-select: initial
+
+	.category, .hotstringContainer
+
+		.collapsed.box:before
+			content: ""
+			border: solid green
+			border-width: 0 4px 4px 0
+			width: 6px
+			height: 6px
+			transform: translate(0, -2px) rotate(45deg)
+			transition: transform .1s linear
+
+		&.collapsed
+			.collapsed.box:before
+				transform: translate(-2px, 0) rotate(-45deg)
+
+			> :not(.title)
+				display: none
+
+		.enabled.box
+			&:before, &:after
+				content: ""
+				width: 4px
+				height: 15px
+				background-color: red
+
+				position: absolute
+				left: 50%
+				top: 50%
+
+				transform: translate(-50%, -50%) rotate(45deg)
+				transition: transform .1s linear, width .1s linear, height .1s linear
+
+			&:after
+				transform: translate(-50%, -50%) rotate(-45deg)
+
+		&.enabled
+			> .title > .enabled.box
+				&:before, &:after
+					background-color: lime
+
+				&:before
+					transform: translate(-50%, -50%) translate(-1px, -2px) rotate(45deg) translate(4px, -1px)
+					height: 16px
+
+				&:after
+					transform: translate(-50%, -50%) translate(-1px, -2px) rotate(-45deg) translate(-5px, 0)
+					height: 8px
+
+		&.blocked
+			> .title > .enabled.box
+				&:before, &:after
+					background-color: yellow
+					height: 15px
+
+				&:before
+					transform: translate(-50%, -50%) rotate(0deg) translate(5px, 0)
+
+				&:after
+					transform: translate(-50%, -50%) rotate(0deg) translate(-5px, 0)
+
+		.delete.box
+			background-origin: border-box
+			//background-image: url('/trash-black.svg')
+			//background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZmlsbD0iYmxhY2siIGQ9Ik02IDE5YzAgMS4xLjkgMiAyIDJoOGMxLjEgMCAyLS45IDItMlY3SDZ2MTJ6TTE5IDRoLTMuNWwtMS0xaC01bC0xIDFINXYyaDE0VjR6Ii8+PC9zdmc+')
+
+			&.r_u_sure
+				//background-image: url('/trash-red.svg')
+				//background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZmlsbD0icmVkIiBkPSJNNiAxOWMwIDEuMS45IDIgMiAyaDhjMS4xIDAgMi0uOSAyLTJWN0g2djEyek0xOSA0aC0zLjVsLTEtMWgtNWwtMSAxSDV2MmgxNFY0eiIvPjwvc3ZnPg==')
+
+
+		.title
+			margin-bottom: 8px
+
+			display: flex
+			font-weight: normal
+			align-items: center
+
+			white-space: pre
+
+			> span
+				flex-grow: 1
+				overflow: hidden
+				text-overflow: ellipsis
+				line-height: 24px
+
+		abbr
+			display: none
+			color: red
+			font-weight: bold
+			margin: 2px
+
+			&[title]
+				display: inline
+
+
+		&:not(.enabled)
+			opacity: .5
+
+			*
+				opacity: 1
+
+	.category
+		border: 1px solid black
+		border-radius: 4px
+
+		padding: 8px 4px 8px 12px
+		//background-color: #333
+		background-color: #ccc
+		margin: 8px 4px 18px 4px
+
+		box-shadow: 8px 4px 0 0 #4f0 inset
+
+		&.dragging
+			box-shadow: 0 0 8px deepskyblue inset, 8px 4px 0 0 #4f0 inset
+
+	.hotstringContainer
+		border: 1px solid black
+		border-radius: 4px
+		margin: 8px 4px
+		padding: 8px
+		background-color: #eee
+
+		.emoji
+			height: 48px
+			width: 56px
+
+			font-size: 32px
+			line-height: 32px
+			vertical-align: middle
+
+			font-family: "Noto Color Emoji", "Apple Color Emoji", "Segoe UI Emoji", Times, Symbola, Aegyptus, Code2000, Code2001, Code2002, Musica, serif, LastResort
+
+		&.dragging
+			box-shadow: 0 0 8px deepskyblue inset
+
+	.addNew
+		transform: scaleY(1)
+		transition: transform .1s linear
+		box-sizing: border-box
+
+		margin: 8px auto -22px 4px
+
+		overflow: hidden
+
+		div
+			float: left
+			text-align: center
+
+			height: 28px
+			box-sizing: border-box
+			border-radius: 14px
+
+			border: 1px solid black
+			background-color: #4f0
+			padding: 4px 8px
+			margin: 0 4px
+
+			cursor: pointer
+			user-select: none
+
+.box
+	width: 24px
+	height: 24px
+	min-width: 24px
+	min-height: 24px
+	box-sizing: border-box
+	border-radius: 1px
+	border: 1px solid #999
+	background-color: white
+	cursor: pointer
+
+	position: relative
+	display: flex
+	justify-content: center
+	align-items: center
+
+	margin: 2px
+
+.check.box
+	&:before, &:after
+		content: ""
+		width: 4px
+		height: 17px
+		background-color: red
+
+		position: absolute
+		left: 50%
+		top: 50%
+
+		transform: translate(-50%, -50%) translate(0px, 0px) rotate(45deg) translate(0px, 0px)
+		//translate by 0 to allow smooth animation in IE
+		transition: transform .1s linear, width .1s linear, height .1s linear
+
+	&:after
+		transform: translate(-50%, -50%) translate(0px, 0px) rotate(-45deg) translate(0px, 0px)
+
+	&.checked
+		&:before, &:after
+			background-color: lime
+
+		&:before
+			transform: translate(-50%, -50%) translate(-1px, -2px) rotate(45deg) translate(4px, -1px)
+			height: 16px
+
+		&:after
+			transform: translate(-50%, -50%) translate(-1px, -2px) rotate(-45deg) translate(-5px, 0)
+			height: 8px
+
+//Dark Mode
+html.dark
+	body
+		color: white
+		background-color: #131415
+
+		scrollbar-face-color: #4D4D4D
+		scrollbar-highlight-color: #4D4D4D
+		scrollbar-3dlight-color: #4D4D4D
+		scrollbar-darkshadow-color: #4D4D4D
+		scrollbar-shadow-color: #4D4D4D
+		scrollbar-arrow-color: #616161
+		scrollbar-track-color: #171717
+
+	main > * > table > tbody > tr:not(.title) + tr:not(.title)
+		border-top: 1px solid #333
+
+	input[type="text"], input:not([type]), textarea
+		border-color: #555
+		color: white
+		background-color: #121314
+
+		&:focus
+			border-color: #777
+
+		&.error
+			border-color: red
+
+	.key
+		background-color: #555
+		border-color: black
+		box-shadow: 1px 1px 1px 0 #ddd
+
+	.input .key
+		background-color: #175c00
+
+	.hotstring, .replacement
+		color: #babbbc
+		background-color: #434445
+
+	#hotstrings
+		.hotstringContainer, .category
+			.delete.box
+				//background-image: url('/trash-white.svg')
+				//background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZmlsbD0id2hpdGUiIGQ9Ik02IDE5YzAgMS4xLjkgMiAyIDJoOGMxLjEgMCAyLS45IDItMlY3SDZ2MTJ6TTE5IDRoLTMuNWwtMS0xaC01bC0xIDFINXYyaDE0VjR6Ii8+PC9zdmc+')
+
+				&.r_u_sure
+					//background-image: url('/trash-red.svg')
+					//background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZmlsbD0icmVkIiBkPSJNNiAxOWMwIDEuMS45IDIgMiAyaDhjMS4xIDAgMi0uOSAyLTJWN0g2djEyek0xOSA0aC0zLjVsLTEtMWgtNWwtMSAxSDV2MmgxNFY0eiIvPjwvc3ZnPg==')
+
+		.hotstringContainer
+			background-color: #262728
+
+		.category
+			background-color: #1c1d1e
+
+		.addNew div
+			color: black
+
+	.box
+		background-color: #121314
+
+//Direction Selector
+table.direction
+	width: auto
+
+	td
+		padding: 0
+
+.trash
+
+	.dark &
+		&,&:before
+			background-color: white
+		&:after
+			border-bottom-color: white
+	.r_u_sure>&
+		&,&:before
+			background-color: red
+		&:after
+			border-bottom-color: red
+			
+	
+	transform: translate(-1px, -1px)
+	background-color: black
+	position: absolute
+	top: 7px
+	left: 6px
+	width: 12px
+	height: 14px
+	border-radius: 0 0 2px 2px
+
+	&:before
+		content: ""
+		background-color: black
+		position: absolute
+		top: -3px
+		left: -1px
+		width: 14px
+		height: 2px
+
+	&:after
+		content: ""
+		position: absolute
+		top: -7px
+		left: 3px
+		width: 4px
+		height: 2px
+		border: 1px solid transparent
+		border-bottom-color: black
+
+		left: 2px
+		width: 6px
+		
