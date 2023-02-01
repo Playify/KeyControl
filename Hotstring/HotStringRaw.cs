@@ -1,5 +1,5 @@
-namespace KeyControl.Hotstring{
-	public abstract class HotStringUnsaveable{
-		public abstract (int bs,string s)? Replace(string s);
-	}
+namespace KeyControl.HotString;
+
+public abstract class HotStringUnSaveable{
+	public abstract (int bs,string s)? Replace(string s);
 }

@@ -22,7 +22,7 @@
       <envs />
     </TaskOptions>
     <enabled-global>
-      <option value="Pug" />
+      <option value="Pug/Jade" />
     </enabled-global>
   </component>
 </project>

@@ -26,11 +26,11 @@ interface Sender{
 }
 
 interface OwnExternal{
+	Hash: string;
+
 	Log(s: string): void;
 
 	Close();
-
-	Hash: string;
 
 	Init(recv: (s: string)=>void): Sender;
 }
@@ -130,15 +130,16 @@ function send(s: string): void{
 		ws.send(s);
 		setTimeout(send,0);
 	}else if(!ws||ws.readyState==WebSocket.CLOSING||ws.readyState==WebSocket.CLOSED){
-		let url=document.URL;
+		/*let url=document.URL;
 		url="ws"+url.substring(4);
 		const i=url.indexOf('#');
 		if(i!= -1) url=url.substring(0,i);
 		const i2=url.indexOf('?');
 		if(i2!= -1) url=url.substring(0,i2);
+		ws=new WebSocket(""+url);//*/
 
-
-		ws=new WebSocket(""+url);
+		const url="ws"+new URL(document.URL).origin.substring(4);
+		ws=new WebSocket(url);
 		ws.onclose=function(){
 			ws.close();
 			setTimeout(send,100);
@@ -290,7 +291,8 @@ let randomID=Math.floor(Math.random()*(-1>>>0));//Number.MAX_SAFE_INTEGER
 
 
 function getRandomId(){
-	while(HotString.IdMap[++randomID]){}
+	while(HotString.IdMap[++randomID]){
+	}
 	return randomID;
 }
 
@@ -371,47 +373,17 @@ interface HotStringBase{
 }
 
 abstract class HotString{
+	public static IdMap: HotString[]=[];
+	public static Blocked: HotString[]=[];
 	public readonly id: number;
 	public parent: Category=null;
 	public readonly div: HTMLDivElement;
+	public readonly addBefore: HotStringInserter;
 	protected readonly titleText: HTMLInputElement;
 	private readonly _collapsed: HTMLInputElement;
 	private readonly _enabled: HTMLInputElement;
-
-	public readonly addBefore: HotStringInserter;
 	private readonly errorBox: HTMLElement;
 	private readonly options: [HTMLInputElement,(json: any)=>(string | boolean)][]=[];
-
-	public static IdMap: HotString[]=[];
-	public static Blocked: HotString[]=[];
-
-	public static update(value: any){
-		if(typeof value=="number"){
-			this.IdMap[value]?.destroy();
-			delete this.IdMap[value];
-			return;
-		}
-		if(Array.isArray(value)){
-			Category.master.loadJson(value);
-			return;
-		}
-		const id=value.Id;
-		const old=this.IdMap[id];
-		if(old) old.loadJson(value);
-		else this.get(null,value);
-	}
-
-	public static updateBlocked(value: number[]){
-		for(let hotString of this.Blocked) hotString.div.classList.remove("blocked");
-		this.Blocked=[];
-
-		for(let number of value){
-			const hotString=this.get(null,number);
-			hotString.div.classList.add("blocked");
-			this.Blocked.push(hotString);
-		}
-	}
-
 
 	protected constructor(parent: Category,data: any){
 		if(data==null){
@@ -509,6 +481,47 @@ abstract class HotString{
 		}
 	}
 
+	public static update(value: any){
+		if(typeof value=="number"){
+			this.IdMap[value]?.destroy();
+			delete this.IdMap[value];
+			return;
+		}
+		if(Array.isArray(value)){
+			Category.master.loadJson(value);
+			return;
+		}
+		const id=value.Id;
+		const old=this.IdMap[id];
+		if(old) old.loadJson(value);
+		else this.get(null,value);
+	}
+
+	public static updateBlocked(value: number[]){
+		for(let hotString of this.Blocked) hotString.div.classList.remove("blocked");
+		this.Blocked=[];
+
+		for(let number of value){
+			const hotString=this.get(null,number);
+			hotString.div.classList.add("blocked");
+			this.Blocked.push(hotString);
+		}
+	}
+
+	static get(parent: Category,child: any): HotString{
+		if(typeof child=="number") return this.IdMap[child];
+		if("Category" in child) return new Category(parent,child);
+		if("Emoji" in child) return new HotStringEmoji(parent,child);
+		if("Regex" in child) return new HotStringRegex(parent,child);
+		/*const from=<string>child.From;
+		const to=<string>child.To;
+		if(typeof from!=="string") throw new Error("From is null");
+		if(typeof to!=="string") throw new Error("To is null");
+		if(from.length!=to.length) return new HotStringReplace(parent,child);
+		if(child.keepCase!=false) return new HotStringKeepCase(parent,child);*/
+		return new HotStringReplace(parent,child);
+	}
+
 	addOption(func: (json: any)=>(string | boolean),name: string,sub?: string){
 		const row=document.createElement("tr");
 		this.div.appendChild(row);
@@ -595,20 +608,6 @@ abstract class HotString{
 		this.updateControls();
 	}
 
-	static get(parent: Category,child: any): HotString{
-		if(typeof child=="number") return this.IdMap[child];
-		if("Category" in child) return new Category(parent,child);
-		if("Emoji" in child) return new HotStringEmoji(parent,child);
-		if("Regex" in child) return new HotStringRegex(parent,child);
-		/*const from=<string>child.From;
-		const to=<string>child.To;
-		if(typeof from!=="string") throw new Error("From is null");
-		if(typeof to!=="string") throw new Error("To is null");
-		if(from.length!=to.length) return new HotStringReplace(parent,child);
-		if(child.keepCase!=false) return new HotStringKeepCase(parent,child);*/
-		return new HotStringReplace(parent,child);
-	}
-
 	send(): void{
 		this.updateControls();
 		let value: any;
@@ -637,18 +636,10 @@ interface CategoryData extends HotStringBase{
 
 class Category extends HotString{
 	public readonly div: HTMLDivElement;
-	private readonly createNew: HTMLDivElement;
-
 	public readonly addChild: HotStringInserter;
 	public readonly addBefore: HotStringInserter;
-
 	public readonly childs: HotString[]=[];
-
-	private static _master: Category;
-	public static get master(){
-		if(this._master==null) this._master=new Category(null,null);
-		return this._master;
-	}
+	private readonly createNew: HTMLDivElement;
 
 	constructor(parent: Category,data: CategoryData){
 		super(parent,data);
@@ -728,6 +719,13 @@ class Category extends HotString{
 		if(childs!=null)
 			for(let i=0; i<childs.length; i++)
 				this.addChild(HotString.get(this,childs[i]));
+	}
+
+	private static _master: Category;
+
+	public static get master(){
+		if(this._master==null) this._master=new Category(null,null);
+		return this._master;
 	}
 
 	destroy(): void{

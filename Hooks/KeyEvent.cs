@@ -1,20 +1,20 @@
 using System.Windows.Forms;
 
-namespace KeyControl.Hooks{
-	public delegate void KeyEventHandler(object sender,KeyEvent e);
+namespace KeyControl.Hooks;
 
-	public class KeyEvent{
-		public readonly int ScanCode;
+public delegate void KeyEventHandler(object sender,KeyEvent e);
 
-		public readonly int VkCode;
+public class KeyEvent{
+	public readonly int ScanCode;
 
-		public KeyEvent(Keys key,int vkCode,int scanCode){
-			Key=key;
-			VkCode=vkCode;
-			ScanCode=scanCode;
-		}
+	public readonly int VkCode;
 
-		public bool Handled{get;set;}
-		public Keys Key{get;}
+	public KeyEvent(Keys key,int vkCode,int scanCode){
+		Key=key;
+		VkCode=vkCode;
+		ScanCode=scanCode;
 	}
+
+	public bool Handled{get;set;}
+	public Keys Key{get;}
 }
