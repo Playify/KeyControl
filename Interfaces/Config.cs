@@ -13,6 +13,12 @@ using PlayifyUtils.Utils;
 namespace KeyControl.Interfaces;
 
 public class Config{
+#if DEBUG
+	public static bool Debug=>Environment.MachineName.Equals("PLAYIFY",StringComparison.OrdinalIgnoreCase);
+#else
+	public static bool Debug=>false;
+#endif
+
 	[Flags]
 	public enum Restrict{
 		None=0,
@@ -38,6 +44,8 @@ public class Config{
 		Register(nameof(TransparencySpeed),()=>new JsonNumber(TransparencySpeed),j=>TransparencySpeed=(int) j.AsNumber());
 
 		CapsLock.InitConfig();
+
+		MoveWindows.InitConfig();
 
 		//HotStrings
 		Register(nameof(HotStrings),()=>HotStringCategory.Master.ToJsonArray(false),j=>HotStringCategory.Master.LoadJson(j.AsArray()),Restrict.File);

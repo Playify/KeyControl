@@ -237,6 +237,9 @@ document.addEventListener("DOMContentLoaded",function(){
 	document.addEventListener("keydown",function(e){
 		let k: string;
 		switch(e.key){
+			case "F5":
+				if(ownExternal!=null) e.preventDefault();//Inbuilt Browser can't refresh correctly, page would become white inside KeyControl window
+				return;
 			case "Escape":
 			case "Esc":
 				ownExternal?.Close();
@@ -316,7 +319,7 @@ function makeDraggable(hs: HotString){
 			}
 		});
 
-		//nearest element is itself. its easier to check for null than to check inserter variable
+		//nearest element is itself. it's easier to check for null than to check inserter variable
 		if(inserter==null) return;
 
 		const prevParent=hs.parent;

@@ -4,7 +4,6 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows.Forms;
-using System.Windows.Input;
 using KeyControl.Hooks;
 using KeyControl.HotString.Saveable;
 using KeyControl.Interfaces;
@@ -36,7 +35,7 @@ public static class HotStringHandler{
 
 		var s=Builder.ToString();
 
-		Console.WriteLine("s:"+s);
+		Console.WriteLine("Possible Hotstring:"+s);
 
 		CurrentEmoji=null;
 		try{
@@ -143,11 +142,11 @@ public static class HotStringHandler{
 
 		//GetKeyboardState(KeyboardState);
 
-		KeyboardState[(int) Keys.LControlKey]=(byte) (Keyboard.IsKeyDown(Key.LeftCtrl)?0x80:0);
-		KeyboardState[(int) Keys.RControlKey]=(byte) (Keyboard.IsKeyDown(Key.RightCtrl)?0x80:0);
+		KeyboardState[(int) Keys.LControlKey]=(byte) (Modifiers.IsKeyDown(Keys.LControlKey)?0x80:0);
+		KeyboardState[(int) Keys.RControlKey]=(byte) (Modifiers.IsKeyDown(Keys.RControlKey)?0x80:0);
 		KeyboardState[(int) Keys.ControlKey]=(byte) (KeyboardState[(int) Keys.LControlKey]|KeyboardState[(int) Keys.RControlKey]);
-		KeyboardState[(int) Keys.LMenu]=(byte) (Keyboard.IsKeyDown(Key.LeftAlt)?0x80:0);
-		KeyboardState[(int) Keys.RMenu]=(byte) (Keyboard.IsKeyDown(Key.RightAlt)?0x80:0);
+		KeyboardState[(int) Keys.LMenu]=(byte) (Modifiers.IsKeyDown(Keys.LMenu)?0x80:0);
+		KeyboardState[(int) Keys.RMenu]=(byte) (Modifiers.IsKeyDown(Keys.RMenu)?0x80:0);
 		KeyboardState[(int) Keys.Menu]=(byte) (KeyboardState[(int) Keys.LMenu]|KeyboardState[(int) Keys.RMenu]);//*/
 
 		/*if(KeyboardState[(int)Keys.ControlKey]!=0&&KeyboardState[(int)Keys.RMenu]==0&&e.Key!=Keys.Back){
@@ -163,11 +162,11 @@ public static class HotStringHandler{
 			Reset();
 			return;
 		}
-		KeyboardState[(int) Keys.LShiftKey]=(byte) (Keyboard.IsKeyDown(Key.LeftShift)?0x80:0);
-		KeyboardState[(int) Keys.RShiftKey]=(byte) (Keyboard.IsKeyDown(Key.RightShift)?0x80:0);
+		KeyboardState[(int) Keys.LShiftKey]=(byte) (Modifiers.IsKeyDown(Keys.LShiftKey)?0x80:0);
+		KeyboardState[(int) Keys.RShiftKey]=(byte) (Modifiers.IsKeyDown(Keys.RShiftKey)?0x80:0);
 		KeyboardState[(int) Keys.ShiftKey]=(byte) (KeyboardState[(int) Keys.LShiftKey]|KeyboardState[(int) Keys.RShiftKey]);
-		KeyboardState[(int) Keys.CapsLock]=(byte) (Keyboard.IsKeyToggled(Key.CapsLock)?0x80:0);
-		KeyboardState[(int) Keys.NumLock]=(byte) (Keyboard.IsKeyToggled(Key.NumLock)?0x80:0);//*/
+		KeyboardState[(int) Keys.CapsLock]=(byte) (Modifiers.IsCapsLock?0x80:0);
+		KeyboardState[(int) Keys.NumLock]=(byte) (Modifiers.IsNumLock?0x80:0);//*/
 
 		var str=new StringBuilder(10);
 		var i=ToUnicode(e.VkCode,e.ScanCode,KeyboardState,str,str.Capacity,4);

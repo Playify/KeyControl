@@ -4,7 +4,7 @@ using System.Numerics;
 using System.Text;
 using System.Text.RegularExpressions;
 using KeyControl.HotKeyHandler;
-using KeyControl.Interfaces;
+using KeyControl.Utilities;
 using PlayifyUtils.Utils;
 
 namespace KeyControl.HotString.Complex;

@@ -48,19 +48,15 @@
         <Reference Include="PresentationCore" />
         <Reference Include="System" />
         <Reference Include="System.Core" />
-        <Reference Include="System.Data" />
         <Reference Include="System.Drawing" />
-        <Reference Include="System.Management" />
         <Reference Include="System.Numerics" />
-        <Reference Include="System.Windows" />
         <Reference Include="System.Windows.Forms" />
-        <Reference Include="System.Xml" />
-        <Reference Include="WindowsBase" />
     </ItemGroup>
     <ItemGroup>
         <Compile Include="Features\CapsLock.cs" />
         <Compile Include="Features\Games\CrossHair.cs" />
         <Compile Include="Features\Games\Wasd.cs" />
+        <Compile Include="Features\MoveWindows.cs" />
         <Compile Include="Features\NamingHelper.cs" />
         <Compile Include="Features\Spammer.cs" />
         <Compile Include="Features\SpecialChars.cs" />
@@ -90,12 +86,12 @@
         <Compile Include="Interfaces\ConfigProvider.cs" />
         <Compile Include="Interfaces\ConfigWindow.cs" />
         <Compile Include="Interfaces\Logger.cs" />
-        <Compile Include="Interfaces\Modifiers.cs" />
         <Compile Include="Interfaces\Text.cs" />
         <Compile Include="Interfaces\TrayIcon.cs" />
         <Compile Include="Interfaces\Windows.cs" />
         <Compile Include="Program.cs" />
         <Compile Include="Properties\AssemblyInfo.cs" />
+        <Compile Include="Utilities\Modifiers.cs" />
         <Compile Include="Utilities\Scheduler.cs" />
         <Compile Include="Utilities\Send.cs">
             <DependentUpon>Text.cs</DependentUpon>

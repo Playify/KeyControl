@@ -1,7 +1,6 @@
 using System;
 using System.IO;
 using System.Windows.Forms;
-using System.Windows.Input;
 using KeyControl.HotKeyHandler;
 using KeyControl.Interfaces;
 using KeyControl.Utilities;
@@ -26,7 +25,7 @@ public static class CapsLock{
 			ConfigWindow.Open();
 			return true;
 		}
-		if(Modifiers.Shift||Modifiers.Ctrl||Keyboard.IsKeyToggled(Key.CapsLock)) return false;//dont replace
+		if(Modifiers.Shift||Modifiers.Ctrl||Modifiers.IsCapsLock) return false;//dont replace
 
 		if(CsGoK){
 			var fileName=Path.GetFileName(Windows.GetExe(Windows.GetForegroundWindow()));

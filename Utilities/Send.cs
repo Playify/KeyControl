@@ -1,16 +1,16 @@
 using System;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows.Forms;
-using System.Windows.Input;
 using static System.Windows.Forms.Keys;
 using static KeyControl.Utilities.Send.SendFlags;
-using ModifierKeys=KeyControl.Interfaces.ModifierKeys;
 
 namespace KeyControl.Utilities;
 
+[SuppressMessage("ReSharper","MemberCanBePrivate.Global")]
 public class Send{
 	public static IntPtr ProcessHandle=Process.GetCurrentProcess().Handle;
 	public static SendFlags SetDown(SendFlags flags,bool down)=>(flags&~KeyPress)|(down?KeyDown:KeyUp);
@@ -57,20 +57,20 @@ public class Send{
 		_hasMods=true;
 		_startingMods=_currentMods=new Mods{
 			Shift={
-				L=Keyboard.IsKeyDown(System.Windows.Input.Key.LeftShift),
-				R=Keyboard.IsKeyDown(System.Windows.Input.Key.RightShift),
+				L=(GetKeyState(LShiftKey)&128)!=0,
+				R=(GetKeyState(RShiftKey)&128)!=0,
 			},
 			Ctrl={
-				L=Keyboard.IsKeyDown(System.Windows.Input.Key.LeftCtrl),
-				R=Keyboard.IsKeyDown(System.Windows.Input.Key.RightCtrl),
+				L=(GetKeyState(LControlKey)&128)!=0,
+				R=(GetKeyState(RControlKey)&128)!=0,
 			},
 			Alt={
-				L=Keyboard.IsKeyDown(System.Windows.Input.Key.LeftAlt),
-				R=Keyboard.IsKeyDown(System.Windows.Input.Key.RightAlt),
+				L=(GetKeyState(LMenu)&128)!=0,
+				R=(GetKeyState(RMenu)&128)!=0,
 			},
 			Win={
-				L=Keyboard.IsKeyDown(System.Windows.Input.Key.LWin),
-				R=Keyboard.IsKeyDown(System.Windows.Input.Key.RWin),
+				L=(GetKeyState(LWin)&128)!=0,
+				R=(GetKeyState(RWin)&128)!=0,
 			},
 		};
 	}
@@ -127,12 +127,12 @@ public class Send{
 		}
 	}
 
-	public struct Lr{
+	public struct LeftRight{
 		public bool L,R;
 	}
 
 	public struct Mods{
-		public Lr Shift,Ctrl,Alt,Win;
+		public LeftRight Shift,Ctrl,Alt,Win;
 	}
 	#endregion
 
@@ -213,7 +213,7 @@ public class Send{
 		=>(flags&KeyPress)!=KeyPress
 		  ?Add(new Input{
 			  Type=1,
-			  InputUnion=new Inputunion{
+			  InputUnion=new InputUnion{
 				  ki=new KeyBdInput{
 					  WVk=0,
 					  WScan=(short) c,
@@ -231,7 +231,7 @@ public class Send{
 		   ?Mouse(key,flags)
 		   :Add(new Input{
 			   Type=1,
-			   InputUnion=new Inputunion{
+			   InputUnion=new InputUnion{
 				   ki=new KeyBdInput{
 					   WVk=(short) key,
 					   WScan=MapVirtualKey((short) key,0),
@@ -247,7 +247,7 @@ public class Send{
 		=>(flags&KeyPress)!=KeyPress
 		  ?Add(new Input{
 			  Type=0,
-			  InputUnion=new Inputunion{
+			  InputUnion=new InputUnion{
 				  mi=new MouseInput{
 					  Dx=0,
 					  Dy=0,
@@ -275,6 +275,7 @@ public class Send{
 	#endregion
 
 	#region Mouse
+	[SuppressMessage("ReSharper","CommentTypo")]
 	public Send MouseMove(int x,int y,bool relative=false,bool hidden=false){
 		if(!relative){
 			var size=Screen.PrimaryScreen.Bounds.Size;
@@ -284,7 +285,7 @@ public class Send{
 
 		return Add(new Input{
 			Type=0,
-			InputUnion=new Inputunion{
+			InputUnion=new InputUnion{
 				mi=new MouseInput{
 					Dx=x,
 					Dy=y,
@@ -437,11 +438,11 @@ public class Send{
 
 	public struct Input{
 		public int Type;
-		public Inputunion InputUnion;
+		public InputUnion InputUnion;
 	}
 
 	[StructLayout(LayoutKind.Explicit)]
-	public struct Inputunion{
+	public struct InputUnion{
 		[FieldOffset(0)]
 		public MouseInput mi;
 		[FieldOffset(0)]
@@ -450,7 +451,7 @@ public class Send{
 		public HardwareInput hi;
 	}
 
-	[DllImport("user32.dll")]
-	private static extern int GetSystemMetrics(int smIndex);
+	[DllImport("USER32.dll")]
+	private static extern short GetKeyState(Keys key);
 	#endregion
 }

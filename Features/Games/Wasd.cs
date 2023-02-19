@@ -1,6 +1,5 @@
 using System;
 using System.Windows.Forms;
-using System.Windows.Input;
 using KeyControl.Hooks;
 using KeyControl.Interfaces;
 using KeyControl.Utilities;
@@ -21,7 +20,7 @@ public static class Wasd{
 
 			Scheduler.RunOnMainThread(()=>{
 				if(value){
-					_physical=(Keyboard.IsKeyDown(Key.W),Keyboard.IsKeyDown(Key.A),Keyboard.IsKeyDown(Key.S),Keyboard.IsKeyDown(Key.D));
+					_physical=(Modifiers.IsKeyDown(Keys.W),Modifiers.IsKeyDown(Keys.A),Modifiers.IsKeyDown(Keys.S),Modifiers.IsKeyDown(Keys.D));
 					_logical=_physical;
 					Program.Keyboard.KeyDown+=KeyDown;
 					Program.Keyboard.KeyUp+=KeyUp;

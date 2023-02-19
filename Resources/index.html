@@ -6,9 +6,9 @@
 	<link rel="stylesheet" href="style.css">
 	<script src="script.js"></script>
 </head>
-<nav>
-	<a href="#hotkeys">Hotkeys</a><a href="#capslock">CapsLock</a><a href="#hotstrings">Hotstrings</a><a href="#inline">Inline</a>
-	<!--a(href="#naminghelper") Namer--><a href="#spammer">Spammer</a><a href="#games">Games</a>
+<nav><a href="#hotkeys">Hotkeys</a><a href="#advancedkeys">Advanced
+	Keys</a><a href="#games">Games</a><a href="#hotstrings">Hotstrings</a><a href="#inline">Inline</a>
+	<!--a(href="#naminghelper") Namer-->
 	<div class="spacer"></div>
 	<a href="#technical">Technical</a><a href="#test">Test Area <sub>🛈</sub></a></nav>
 <main>
@@ -22,11 +22,11 @@
 			</tr>
 			<tr>
 				<td>Move Window</td>
-				<td class="keycombo">Ctrl+Win+LButton</td>
+				<td class="keycombo">Ctrl+Win+Left Click</td>
 			</tr>
 			<tr>
 				<td>Resize Window</td>
-				<td class="keycombo">Ctrl+Win+RButton</td>
+				<td class="keycombo">Ctrl+Win+Right Click</td>
 			</tr>
 			<tr>
 				<td>Transparency</td>
@@ -101,7 +101,7 @@ To cancel a pressed key, just press the key again">🛈</sub></td>
 			</tr>
 		</table>
 	</div>
-	<div id="capslock">
+	<div id="advancedkeys">
 		<table>
 			<tr class="title">
 				<td>CapsLock</td>
@@ -123,6 +123,148 @@ To cancel a pressed key, just press the key again">🛈</sub></td>
 			<tr>
 				<td>Replacement</td>
 				<td><textarea name="CapsLock.Advanced"></textarea></td>
+			</tr>
+			<tr class="title">
+				<td>Spammer</td>
+			</tr>
+			<tr>
+				<td>Enable Spammer</td>
+				<td>
+					<div class="check box" name="Spammer.Enabled"></div>
+				</td>
+			</tr>
+			<tr>
+				<td>Key combo</td>
+				<td class="keycombo">ScrollLock</td>
+			</tr>
+			<tr>
+				<td>Delay in ms</td>
+				<td><input class="int" name="Spammer.Delay"></td>
+			</tr>
+			<tr>
+				<td>Action</td>
+				<td><textarea name="Spammer.Advanced"></textarea></td>
+			</tr>
+			<tr>
+				<td>Press<span class="keycombo">Return</span>afterwards</td>
+				<td>
+					<div class="check box" name="Spammer.Return"></div>
+				</td>
+			</tr>
+			<tr class="title">
+				<td>Move Windows</td>
+			</tr>
+			<tr>
+				<td>Enable Move Windows</td>
+				<td>
+					<div class="check box" name="MoveWindows.Enabled"></div>
+				</td>
+			</tr>
+			<tr>
+				<td>Key combo</td>
+				<td class="keycombo">F1</td>
+			</tr>
+			<tr>
+				<td>Normal F1</td>
+				<td class="keycombo">Win+F1</td>
+			</tr>
+			<tr>
+				<td>Maximize Windows when moving</td>
+				<td>
+					<div class="check box" name="MoveWindows.Maximize"></div>
+				</td>
+			</tr>
+		</table>
+	</div>
+	<div id="games">
+		<table>
+			<tr class="title">
+				<td>CrossHair</td>
+			</tr>
+			<tr>
+				<td>Enabled</td>
+				<td>
+					<div class="check box" name="Games.CrossHair.Enabled"></div>
+				</td>
+			</tr>
+			<tr>
+				<td>Toggle CrossHair</td>
+				<td class="keycombo">Ctrl+Win+V</td>
+			</tr>
+			<tr>
+				<td>Auto Enable in CSGO</td>
+				<td>
+					<div class="check box" name="Games.CrossHair.AutoEnableInCsGo"></div>
+				</td>
+			</tr>
+			<tr>
+				<td>Line Color</td>
+				<td><input class="color" name="Games.CrossHair.LineColor"></td>
+			</tr>
+			<tr>
+				<td>Line Gap</td>
+				<td><input class="int" name="Games.CrossHair.LineGap"></td>
+			</tr>
+			<tr>
+				<td>Line Length</td>
+				<td><input class="int" name="Games.CrossHair.LineLength"></td>
+			</tr>
+			<tr>
+				<td>Line Width</td>
+				<td><input class="int" name="Games.CrossHair.LineWidth"></td>
+			</tr>
+			<tr>
+				<td>Center Dot</td>
+				<td>
+					<div class="check box" name="Games.CrossHair.CenterDot"></div>
+				</td>
+			</tr>
+			<tr class="title">
+				<td>Walking Direction</td>
+			</tr>
+			<tr>
+				<td>Enabled</td>
+				<td>
+					<div class="check box" name="Games.Wasd.Enabled"></div>
+				</td>
+			</tr>
+			<tr>
+				<td>Direction</td>
+				<td>
+					<table class="direction">
+						<tr>
+							<td>
+								<div class="check box" name="Games.Wasd.Direction=7"></div>
+							</td>
+							<td>
+								<div class="check box" name="Games.Wasd.Direction=0"></div>
+							</td>
+							<td>
+								<div class="check box" name="Games.Wasd.Direction=1"></div>
+							</td>
+						</tr>
+						<tr>
+							<td>
+								<div class="check box" name="Games.Wasd.Direction=6"></div>
+							</td>
+							<td></td>
+							<td>
+								<div class="check box" name="Games.Wasd.Direction=2"></div>
+							</td>
+						</tr>
+						<tr>
+							<td>
+								<div class="check box" name="Games.Wasd.Direction=5"></div>
+							</td>
+							<td>
+								<div class="check box" name="Games.Wasd.Direction=4"></div>
+							</td>
+							<td>
+								<div class="check box" name="Games.Wasd.Direction=3"></div>
+							</td>
+						</tr>
+					</table>
+				</td>
 			</tr>
 		</table>
 	</div>
@@ -241,7 +383,14 @@ To cancel a pressed key, just press the key again">🛈</sub></td>
 			span.keycombo Return
 			|   afterwards
 		td
-			.check.box(name="NamingHelper.Enabled")
---><div id="spammer"><table><tr class="title"><td>Spammer</td></tr><tr><td>Enable Spammer</td><td><div class="check box" name="Spammer.Enabled"></div></td></tr><tr><td>Key combo</td><td class="keycombo">ScrollLock</td></tr><tr><td>Delay in ms</td><td><input class="int" name="Spammer.Delay"></td></tr><tr><td>Action</td><td><textarea name="Spammer.Advanced"></textarea></td></tr><tr><td>Press<span class="keycombo">Return</span>afterwards</td><td><div class="check box" name="Spammer.Return"></div></td></tr></table></div><div id="games"><table><tr class="title"><td>CrossHair</td></tr><tr><td>Enabled</td><td><div class="check box" name="Games.CrossHair.Enabled"></div></td></tr><tr><td>Toggle CrossHair</td><td class="keycombo">Ctrl+Win+V</td></tr><tr><td>Auto Enable in CSGO</td><td><div class="check box" name="Games.CrossHair.AutoEnableInCsGo"></div></td></tr><tr><td>Line Color</td><td><input class="color" name="Games.CrossHair.LineColor"></td></tr><tr><td>Line Gap</td><td><input class="int" name="Games.CrossHair.LineGap"></td></tr><tr><td>Line Length</td><td><input class="int" name="Games.CrossHair.LineLength"></td></tr><tr><td>Line Width</td><td><input class="int" name="Games.CrossHair.LineWidth"></td></tr><tr><td>Center Dot</td><td><div class="check box" name="Games.CrossHair.CenterDot"></div></td></tr><tr class="title"><td>Walking Direction</td></tr><tr><td>Enabled</td><td><div class="check box" name="Games.Wasd.Enabled"></div></td></tr><tr><td>Direction</td><td><table class="direction"><tr><td><div class="check box" name="Games.Wasd.Direction=7"></div></td><td><div class="check box" name="Games.Wasd.Direction=0"></div></td><td><div class="check box" name="Games.Wasd.Direction=1"></div></td></tr><tr><td><div class="check box" name="Games.Wasd.Direction=6"></div></td><td></td><td><div class="check box" name="Games.Wasd.Direction=2"></div></td></tr><tr><td><div class="check box" name="Games.Wasd.Direction=5"></div></td><td><div class="check box" name="Games.Wasd.Direction=4"></div></td><td><div class="check box" name="Games.Wasd.Direction=3"></div></td></tr></table></td></tr></table></div><div id="technical"><table><tr><td>Quick-Emoji Timeout <sub title="When you want to write multiple Emojis you have to write the full HotString for the first,
+			.check.box(name="NamingHelper.Enabled")-->
+	<div id="technical">
+		<table>
+			<tr>
+				<td>Quick-Emoji Timeout <sub title="When you want to write multiple Emojis you have to write the full HotString for the first,
 but after that you can just write the last letter of any Emoji-HotString to write the Emoji.
-Here you can specify the Timeout in ms for this action">🛈</sub></td><td><input class="int" name="EmojiTimeout"></td></tr></table></div><!--TODO add info about Advanced Actions ("Send" Class)--><textarea id="test"></textarea></main>
+Here you can specify the Timeout in ms for this action">🛈</sub></td>
+				<td><input class="int" name="EmojiTimeout"></td>
+			</tr>
+		</table>
+	</div><!--TODO add info about Advanced Actions ("Send" Class)--><textarea id="test"></textarea></main>

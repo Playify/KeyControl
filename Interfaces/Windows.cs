@@ -41,6 +41,9 @@ public static class Windows{
 	[DllImport("user32.dll")]
 	public static extern bool SetWindowPos(IntPtr hWnd,IntPtr hWndInsertAfter,int x,int y,int cx,int cy,uint uFlags);
 
+	[DllImport("User32.dll")]
+	public static extern bool MoveWindow(IntPtr handle,int x,int y,int width,int height,bool redraw);
+
 	[DllImport("user32.dll")]
 	public static extern bool GetWindowRect(IntPtr hWnd,out Rect rect);
 
@@ -333,6 +336,11 @@ public static class Windows{
 		return ret;
 	}
 
+	public static bool IsFullscreen(IntPtr hwnd){
+		var l=GetWindowLong(hwnd,-16);//-16=GWL_STYLE
+		return (l&0xc40000)==0;//0xC40000=WS_CAPTION|WS_THICKFRAME
+	}
+
 	private static readonly Dictionary<IntPtr,Rect> FullScreened=new();
 
 	public static void SetFullscreen(IntPtr hwnd,bool? b){
@@ -343,7 +351,7 @@ public static class Windows{
 			SetWindowLong(hwnd,-16,l);
 			SetWindowPos(hwnd,IntPtr.Zero,rect.Left,rect.Top,rect.Right-rect.Left,rect.Bottom-rect.Top,0x4);
 			GetClientRect(hwnd,out rect);
-			PostMessage(hwnd,5,0,((rect.Bottom-rect.Top)<<16)|((rect.Right-rect.Left)&0xffff));
+			PostMessage(hwnd,5,0,((rect.Bottom-rect.Top)<<16)|((rect.Right-rect.Left)&0xffff));//5=WM_SIZE
 			FullScreened.Remove(hwnd);
 		} else{
 			GetWindowRect(hwnd,out rect);
@@ -357,7 +365,7 @@ public static class Windows{
 			FullScreened.Add(hwnd,rect);
 			SetWindowPos(hwnd,IntPtr.Zero,bnd.X,bnd.Y,bnd.Width,bnd.Height,0);
 			GetClientRect(hwnd,out rect);
-			PostMessage(hwnd,5,0,((rect.Bottom-rect.Top)<<16)|((rect.Right-rect.Left)&0xffff));
+			PostMessage(hwnd,5,0,((rect.Bottom-rect.Top)<<16)|((rect.Right-rect.Left)&0xffff));//5=WM_SIZE
 		}
 	}
 

@@ -105,7 +105,6 @@ function onHashChange(){
 }
 
 window.onhashchange=onHashChange;
-
 //endregion
 function testInfo(){
 	var testA=document.querySelector("nav>a[href=\"#test\"] sub");
@@ -218,7 +217,6 @@ function receive(e){
 		}
 	}
 }
-
 //endregion
 document.addEventListener("DOMContentLoaded",function(){
 	initNavigation();
@@ -240,6 +238,10 @@ document.addEventListener("DOMContentLoaded",function(){
 	document.addEventListener("keydown",function(e){
 		var k;
 		switch(e.key){
+			case "F5":
+				if(ownExternal!=null)
+					e.preventDefault(); //Inbuilt Browser can't refresh correctly, page would become white inside KeyControl window
+				return;
 			case "Escape":
 			case "Esc":
 				ownExternal===null||ownExternal=== void 0?void 0:ownExternal.Close();
@@ -313,7 +315,7 @@ function makeDraggable(hs){
 				inserter=func;
 			}
 		});
-		//nearest element is itself. its easier to check for null than to check inserter variable
+		//nearest element is itself. it's easier to check for null than to check inserter variable
 		if(inserter==null)
 			return;
 		var prevParent=hs.parent;
@@ -934,7 +936,6 @@ function setKeyCombo(element,keycombo){
 		element.removeChild(element.lastChild);
 	element.appendChild(fragment);
 }
-
 //endregion
 //region On Change Listener
 function updateElement(target){
@@ -1105,6 +1106,5 @@ function setupCheckbox(checkbox,classElement,clazz){
 		toggle();
 	});
 }
-
 //endregion
 //# sourceMappingURL=script.js.map

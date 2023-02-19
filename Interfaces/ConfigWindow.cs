@@ -31,7 +31,7 @@ public sealed class ConfigWindow:Form{
 
 	public ConfigWindow(){
 		Visible=false;
-		const int size=700;
+		const int size=740;
 		MinimumSize=new Size(size,size*9/16);
 		TopMost=true;
 		Icon=new Icon(typeof(Program),"Resources.favicon.ico");
@@ -45,6 +45,9 @@ public sealed class ConfigWindow:Form{
 
 		_browser.PreviewKeyDown+=(s,e)=>{
 			switch(e.KeyCode){
+				case Keys.F5:
+					e.IsInputKey=true;
+					return;
 				case Keys.Delete:
 				case Keys.Tab:
 
@@ -87,10 +90,8 @@ public sealed class ConfigWindow:Form{
 
 		_browser.ObjectForScripting=new External(_browser);
 		//_browser.Url=new Uri("http://127.2.4.8:5000");
-		var resource=Assembly.GetExecutingAssembly().GetManifestResourceStream($"{nameof(KeyControl)}.Resources.combined.html");
-		_browser.DocumentStream=resource;
-
-		_browser.ShowPropertiesDialog();
+		var stream=Assembly.GetExecutingAssembly().GetManifestResourceStream($"{nameof(KeyControl)}.Resources.combined.html")!;
+		_browser.DocumentStream=stream;
 
 		FormClosing+=(_,args)=>{
 			var isShuttingDown=GetSystemMetrics(0x2000)!=0;//SM_SHUTTINGDOWN

@@ -11,12 +11,11 @@ head
 		script(src="script.js")
 nav
 	a(href="#hotkeys") Hotkeys
-	a(href="#capslock") CapsLock
+	a(href="#advancedkeys") Advanced Keys
+	a(href="#games") Games
 	a(href="#hotstrings") Hotstrings
 	a(href="#inline") Inline
 	//a(href="#naminghelper") Namer
-	a(href="#spammer") Spammer
-	a(href="#games") Games
 	.spacer
 	a(href="#technical") Technical
 	a(href="#test") Test Area 
@@ -32,10 +31,10 @@ main
 				td Mouse
 			tr
 				td Move Window
-				td.keycombo Ctrl+Win+LButton
+				td.keycombo Ctrl+Win+Left Click
 			tr
 				td Resize Window
-				td.keycombo Ctrl+Win+RButton
+				td.keycombo Ctrl+Win+Right Click
 			tr
 				td Transparency
 				td.keycombo Ctrl+Win+ScrollWheel
@@ -92,7 +91,7 @@ main
 				td Keep key down 
 					sub(title="Press this Combo, then press all the keys, that should be held down, simultaneously.\nTo cancel a pressed key, just press the key again") 🛈
 				td.keycombo Ctrl+Win+K
-	#capslock
+	#advancedkeys
 		table
 			tr.title
 				td CapsLock
@@ -111,6 +110,111 @@ main
 				td Replacement
 				td
 					textarea(name="CapsLock.Advanced")
+			tr.title
+				td Spammer
+			tr
+				td Enable Spammer
+				td
+					.check.box(name="Spammer.Enabled")
+			tr
+				td Key combo
+				td.keycombo ScrollLock
+			tr
+				td Delay in ms
+				td
+					input.int(name="Spammer.Delay")
+			tr
+				td Action
+				td
+					textarea(name="Spammer.Advanced")
+			tr
+				td Press
+					span.keycombo Return
+					| afterwards
+				td
+					.check.box(name="Spammer.Return")
+			tr.title
+				td Move Windows
+			tr
+				td Enable Move Windows
+				td
+					.check.box(name="MoveWindows.Enabled")
+			tr
+				td Key combo
+				td.keycombo F1
+			tr
+				td Normal F1
+				td.keycombo Win+F1
+			tr
+				td Maximize Windows when moving
+				td
+					.check.box(name="MoveWindows.Maximize")
+	#games
+		table
+			tr.title
+				td CrossHair
+			tr
+				td Enabled
+				td
+					.check.box(name="Games.CrossHair.Enabled")
+			tr
+				td Toggle CrossHair
+				td.keycombo Ctrl+Win+V
+			tr
+				td Auto Enable in CSGO
+				td
+					.check.box(name="Games.CrossHair.AutoEnableInCsGo")
+			tr
+				td Line Color
+				td
+					input.color(name="Games.CrossHair.LineColor")
+			tr
+				td Line Gap
+				td
+					input.int(name="Games.CrossHair.LineGap")
+			tr
+				td Line Length
+				td
+					input.int(name="Games.CrossHair.LineLength")
+			tr
+				td Line Width
+				td
+					input.int(name="Games.CrossHair.LineWidth")
+			tr
+				td Center Dot
+				td
+					.check.box(name="Games.CrossHair.CenterDot")
+			tr.title
+				td Walking Direction
+			tr
+				td Enabled
+				td
+					.check.box(name="Games.Wasd.Enabled")
+			tr
+				td Direction
+				td
+					table.direction
+						tr
+							td
+								.check.box(name="Games.Wasd.Direction=7")
+							td
+								.check.box(name="Games.Wasd.Direction=0")
+							td
+								.check.box(name="Games.Wasd.Direction=1")
+						tr
+							td
+								.check.box(name="Games.Wasd.Direction=6")
+							td
+
+							td
+								.check.box(name="Games.Wasd.Direction=2")
+						tr
+							td
+								.check.box(name="Games.Wasd.Direction=5")
+							td
+								.check.box(name="Games.Wasd.Direction=4")
+							td
+								.check.box(name="Games.Wasd.Direction=3")
 	#hotstrings(name="HotStrings")
 	#inline
 		table
@@ -251,99 +355,6 @@ main
 					| #{" "} afterwards
 				td
 					.check.box(name="NamingHelper.Enabled")
-
-	#spammer
-		table
-			tr.title
-				td Spammer
-			tr
-				td Enable Spammer
-				td
-					.check.box(name="Spammer.Enabled")
-			tr
-				td Key combo
-				td.keycombo ScrollLock
-			tr
-				td Delay in ms
-				td
-					input.int(name="Spammer.Delay")
-			tr
-				td Action
-				td
-					textarea(name="Spammer.Advanced")
-			tr
-				td Press
-					span.keycombo Return
-					| afterwards
-				td
-					.check.box(name="Spammer.Return")
-	#games
-		table
-			tr.title
-				td CrossHair
-			tr
-				td Enabled
-				td
-					.check.box(name="Games.CrossHair.Enabled")
-			tr
-				td Toggle CrossHair
-				td.keycombo Ctrl+Win+V
-			tr
-				td Auto Enable in CSGO
-				td
-					.check.box(name="Games.CrossHair.AutoEnableInCsGo")
-			tr
-				td Line Color
-				td
-					input.color(name="Games.CrossHair.LineColor")
-			tr
-				td Line Gap
-				td
-					input.int(name="Games.CrossHair.LineGap")
-			tr
-				td Line Length
-				td
-					input.int(name="Games.CrossHair.LineLength")
-			tr
-				td Line Width
-				td
-					input.int(name="Games.CrossHair.LineWidth")
-			tr
-				td Center Dot
-				td
-					.check.box(name="Games.CrossHair.CenterDot")
-			tr.title
-				td Walking Direction
-			tr
-				td Enabled
-				td
-					.check.box(name="Games.Wasd.Enabled")
-			tr
-				td Direction
-				td
-					table.direction
-						tr
-							td
-								.check.box(name="Games.Wasd.Direction=7")
-							td
-								.check.box(name="Games.Wasd.Direction=0")
-							td
-								.check.box(name="Games.Wasd.Direction=1")
-						tr
-							td
-								.check.box(name="Games.Wasd.Direction=6")
-							td
-
-							td
-								.check.box(name="Games.Wasd.Direction=2")
-						tr
-							td
-								.check.box(name="Games.Wasd.Direction=5")
-							td
-								.check.box(name="Games.Wasd.Direction=4")
-							td
-								.check.box(name="Games.Wasd.Direction=3")
-
 	#technical
 		table
 			tr

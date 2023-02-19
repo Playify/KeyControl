@@ -7,7 +7,6 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Windows.Input;
 using AsyncFriendlyStackTrace;
 using KeyControl.Features.Games;
 using KeyControl.Hooks;
@@ -114,9 +113,9 @@ public static class Program{
 		_reset.Set();
 
 		if(Config.Constant.EnableHook){
-			if(System.Windows.Input.Keyboard.IsKeyToggled(Key.CapsLock)) new Send().Hide().Key(Keys.CapsLock).SendNow();
-			if(System.Windows.Input.Keyboard.IsKeyToggled(Key.Scroll)) new Send().Hide().Key(Keys.Scroll).SendNow();
-			if(!System.Windows.Input.Keyboard.IsKeyToggled(Key.NumLock)) new Send().Hide().Key(Keys.NumLock).SendNow();
+			if(Modifiers.IsCapsLock) new Send().Hide().Key(Keys.CapsLock).SendNow();
+			if(Modifiers.IsScrollLock) new Send().Hide().Key(Keys.Scroll).SendNow();
+			if(!Modifiers.IsNumLock) new Send().Hide().Key(Keys.NumLock).SendNow();
 
 			Shell=new GlobalShellHook();
 

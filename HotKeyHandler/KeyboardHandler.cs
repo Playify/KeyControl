@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Windows.Forms;
-using System.Windows.Input;
 using KeyControl.Features;
 using KeyControl.Features.Games;
 using KeyControl.Hooks;
@@ -10,13 +9,13 @@ using KeyControl.HotString.Complex;
 using KeyControl.Interfaces;
 using KeyControl.Utilities;
 using PlayifyUtils.Utils;
-using ModifierKeys=KeyControl.Interfaces.ModifierKeys;
 
 namespace KeyControl.HotKeyHandler;
 
 public static class KeyboardHandler{
 	public static readonly Dictionary<Keys,Keys> ReleaseKeys=new();
 	public static HashSet<Keys> KeepDown;
+	private static Send.LeftRight _repressWinOnF1;
 
 	public static void Down(object sender,KeyEvent e){
 		try{
@@ -41,15 +40,22 @@ public static class KeyboardHandler{
 							e.Handled=true;
 						return;
 					}*/
+#if DEBUG
+				case Keys.Packet when Config.Debug&&e.ScanCode=='°'://allow Vive Keyboard to move windows
+#endif
+				case Keys.F1:{
+					if(MoveWindows.Execute(ref _repressWinOnF1)) e.Handled=true;
+					return;
+				}
 				case Keys.CapsLock:{
 					if(CapsLock.Execute()) e.Handled=true;
 					return;
 				}
 				case Keys.NumLock:{
-					if(Modifiers.Shift||Modifiers.Ctrl||!Keyboard.IsKeyToggled(Key.NumLock)) return;//dont replace
+					if(Modifiers.Shift||Modifiers.Ctrl||!Modifiers.IsNumLock) return;//dont replace
 					e.Handled=true;
 					var send=new Send().Hide().Key(Keys.NumLock,false);
-					if(Keyboard.IsKeyToggled(Key.NumLock)) send.Key(Keys.NumLock);
+					if(Modifiers.IsNumLock) send.Key(Keys.NumLock);
 					send.Key(Keys.NumLock,true).SendNow();
 
 					Text.CopyText(s=>{
@@ -99,9 +105,9 @@ public static class KeyboardHandler{
 						});
 						return;*/
 				case Keys.Scroll:
-					var shouldSpamm=!Keyboard.IsKeyToggled(Key.Scroll);
-					if(Spammer.Enabled) Spammer.Running=shouldSpamm;
-					else if(shouldSpamm) e.Handled=true;
+					var shouldSpam=!Modifiers.IsScrollLock;
+					if(Spammer.Enabled) Spammer.Running=shouldSpam;
+					else if(shouldSpam) e.Handled=true;
 					return;
 				case Keys.T:
 					if(!Modifiers.Win||!Modifiers.Ctrl) return;
@@ -181,12 +187,23 @@ public static class KeyboardHandler{
 	public static void Up(object sender,KeyEvent e){
 		if(KeepDown!=null&&KeepDown.Contains(e.Key)) KeepDown=null;
 
-		if(!ReleaseKeys.ContainsKey(e.Key)) return;
-		var key=ReleaseKeys[e.Key];
-		ReleaseKeys.Remove(e.Key);
-		if(key==e.Key) return;
-		e.Handled=true;
-		if(key!=Keys.None) new Send().Key(key,false).SendNow();
+		if(e.Key==Keys.F1&&(_repressWinOnF1.L||_repressWinOnF1.R)){
+			var send=new Send();
+
+			if(_repressWinOnF1.L.SetCheck(false)) send.Key(Keys.LWin,true);
+			if(_repressWinOnF1.R.SetCheck(false)) send.Key(Keys.RWin,true);
+
+			send.Key(Keys.Escape)//Cancel Windows keys
+			    .SendNow();
+		}
+
+		if(ReleaseKeys.ContainsKey(e.Key)){
+			var key=ReleaseKeys[e.Key];
+			ReleaseKeys.Remove(e.Key);
+			if(key==e.Key) return;
+			e.Handled=true;
+			if(key!=Keys.None) new Send().Key(key,false).SendNow();
+		}
 		//Windows.SendKey(key,false);
 	}
 }
