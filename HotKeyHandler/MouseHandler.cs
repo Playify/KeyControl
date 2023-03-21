@@ -1,5 +1,6 @@
 using System;
 using System.Windows.Forms;
+using KeyControl.Features;
 using KeyControl.Hooks;
 using KeyControl.Interfaces;
 using KeyControl.Utilities;
@@ -14,6 +15,11 @@ public static class MouseHandler{
 
 
 	public static void Move(MouseEvent e){
+		if(MoveWindows.Enabled&&MoveWindows.IsKeyDown){
+			MoveWindows.Run();
+			Console.WriteLine(DateTime.UtcNow.Ticks);
+		}
+
 		if(_move.HasValue){
 			Windows.GetWindowRect(_move.Value,out var rect);
 			rect.Left+=e.X-_moveX;

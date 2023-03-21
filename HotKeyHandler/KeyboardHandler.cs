@@ -44,7 +44,8 @@ public static class KeyboardHandler{
 				case Keys.Packet when Config.Debug&&e.ScanCode=='°'://allow Vive Keyboard to move windows
 #endif
 				case Keys.F1:{
-					if(MoveWindows.Execute(ref _repressWinOnF1)) e.Handled=true;
+					MoveWindows.IsKeyDown=MoveWindows.Execute(ref _repressWinOnF1);
+					if(MoveWindows.IsKeyDown) e.Handled=true;
 					return;
 				}
 				case Keys.CapsLock:{
@@ -187,14 +188,17 @@ public static class KeyboardHandler{
 	public static void Up(object sender,KeyEvent e){
 		if(KeepDown!=null&&KeepDown.Contains(e.Key)) KeepDown=null;
 
-		if(e.Key==Keys.F1&&(_repressWinOnF1.L||_repressWinOnF1.R)){
-			var send=new Send();
+		if(e.Key==Keys.F1){
+			MoveWindows.IsKeyDown=false;
+			if(_repressWinOnF1.L||_repressWinOnF1.R){
+				var send=new Send();
 
-			if(_repressWinOnF1.L.SetCheck(false)) send.Key(Keys.LWin,true);
-			if(_repressWinOnF1.R.SetCheck(false)) send.Key(Keys.RWin,true);
+				if(_repressWinOnF1.L.SetCheck(false)) send.Key(Keys.LWin,true);
+				if(_repressWinOnF1.R.SetCheck(false)) send.Key(Keys.RWin,true);
 
-			send.Key(Keys.Escape)//Cancel Windows keys
-			    .SendNow();
+				send.Key(Keys.Escape)//Cancel Windows keys
+				    .SendNow();
+			}
 		}
 
 		if(ReleaseKeys.ContainsKey(e.Key)){
