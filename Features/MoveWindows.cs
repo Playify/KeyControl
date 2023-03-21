@@ -7,6 +7,7 @@ namespace KeyControl.Features;
 
 public static class MoveWindows{
 	public static bool Enabled=true;
+	public static bool IsKeyDown=false;
 	public static bool Maximize=true;
 
 	public static void InitConfig(){
@@ -15,7 +16,6 @@ public static class MoveWindows{
 	}
 
 	public static bool Execute(ref Send.LeftRight repressWinOnF1){
-
 		var mods=Modifiers.Combined;
 
 		//If only windows is pressed, then do normal F1
@@ -31,12 +31,19 @@ public static class MoveWindows{
 				send.Key(Keys.RWin,false);
 			}
 			send.SendNow();
+
 			return false;
 		}
 		//Only move window if no additional modifier is pressed
 		if(mods!=ModifierKeys.None) return false;
 
 		if(!Enabled) return false;
+
+		Run();
+		return true;
+	}
+
+	public static void Run(){
 
 		var hwnd=Windows.GetForegroundWindow();
 
@@ -50,7 +57,7 @@ public static class MoveWindows{
 
 		var maximize=false;
 
-		if(Windows.IsFullscreen(hwnd)) rectangle=afterScreen.Bounds;
+		if(Windows.IsFullscreen(hwnd)||Windows.IsMaximized(hwnd)) rectangle=afterScreen.Bounds;
 		else{
 			rectangle.Location+=new Size(afterScreen.Bounds.Location-new Size(beforeScreen.Bounds.Location));
 			rectangle.Size+=afterScreen.Bounds.Size-beforeScreen.Bounds.Size;
@@ -60,6 +67,5 @@ public static class MoveWindows{
 		Windows.MoveWindow(hwnd,rectangle.X,rectangle.Y,rectangle.Width,rectangle.Height,true);
 		if(maximize) Windows.SetMaximized(hwnd,true);
 
-		return true;
 	}
 }
