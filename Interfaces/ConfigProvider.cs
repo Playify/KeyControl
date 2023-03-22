@@ -257,7 +257,7 @@ public class ConfigProvider:WebBase{
 
 	public static async Task<string> GetWebFile(string s){
 #if DEBUG
-		if(Config.Debug){
+		if(System.Diagnostics.Debugger.IsAttached){
 			const string path=@"S:\Code\C#\own\KeyControl\Resources";
 			if(Directory.Exists(path)){
 				return await WebUtils.Read(Path.Combine(path,s.Trim('/')));

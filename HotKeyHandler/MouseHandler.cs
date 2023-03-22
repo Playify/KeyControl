@@ -15,7 +15,7 @@ public static class MouseHandler{
 
 
 	public static void Move(MouseEvent e){
-		if(MoveWindows.Enabled&&MoveWindows.IsKeyDown){
+		if(MoveWindows.Enabled&&MoveWindows.IsF1KeyDown){
 			MoveWindows.Run();
 			Console.WriteLine(DateTime.UtcNow.Ticks);
 		}

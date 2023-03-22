@@ -13,12 +13,6 @@ using PlayifyUtils.Utils;
 namespace KeyControl.Interfaces;
 
 public class Config{
-#if DEBUG
-	public static bool Debug=>Environment.MachineName.Equals("PLAYIFY",StringComparison.OrdinalIgnoreCase);
-#else
-	public static bool Debug=>false;
-#endif
-
 	[Flags]
 	public enum Restrict{
 		None=0,

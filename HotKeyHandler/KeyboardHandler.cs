@@ -40,12 +40,12 @@ public static class KeyboardHandler{
 							e.Handled=true;
 						return;
 					}*/
-#if DEBUG
-				case Keys.Packet when Config.Debug&&e.ScanCode=='°'://allow Vive Keyboard to move windows
-#endif
+				case Keys.Packet when MoveWindows.AllowVive&&e.ScanCode=='£'://allow Vive Keyboard to move windows
 				case Keys.F1:{
-					MoveWindows.IsKeyDown=MoveWindows.Execute(ref _repressWinOnF1);
-					if(MoveWindows.IsKeyDown) e.Handled=true;
+					if(MoveWindows.Execute(ref _repressWinOnF1)){
+						MoveWindows.IsF1KeyDown=e.Key==Keys.F1;
+						e.Handled=true;
+					} else MoveWindows.IsF1KeyDown=false;
 					return;
 				}
 				case Keys.CapsLock:{
@@ -189,7 +189,7 @@ public static class KeyboardHandler{
 		if(KeepDown!=null&&KeepDown.Contains(e.Key)) KeepDown=null;
 
 		if(e.Key==Keys.F1){
-			MoveWindows.IsKeyDown=false;
+			MoveWindows.IsF1KeyDown=false;
 			if(_repressWinOnF1.L||_repressWinOnF1.R){
 				var send=new Send();
 

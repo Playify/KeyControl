@@ -7,12 +7,14 @@ namespace KeyControl.Features;
 
 public static class MoveWindows{
 	public static bool Enabled=true;
-	public static bool IsKeyDown=false;
+	public static bool IsF1KeyDown=false;
 	public static bool Maximize=true;
+	public static bool AllowVive=true;
 
 	public static void InitConfig(){
 		Config.Register(nameof(MoveWindows)+"."+nameof(Enabled),()=>Enabled,j=>Enabled=j.AsBoolean());
 		Config.Register(nameof(MoveWindows)+"."+nameof(Maximize),()=>Maximize,j=>Maximize=j.AsBoolean());
+		Config.Register(nameof(MoveWindows)+"."+nameof(AllowVive),()=>AllowVive,j=>AllowVive=j.AsBoolean());
 	}
 
 	public static bool Execute(ref Send.LeftRight repressWinOnF1){

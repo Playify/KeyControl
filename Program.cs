@@ -13,6 +13,7 @@ using KeyControl.Hooks;
 using KeyControl.HotKeyHandler;
 using KeyControl.Interfaces;
 using KeyControl.Utilities;
+using PlayifyUtils.Utils;
 
 namespace KeyControl;
 
@@ -32,6 +33,8 @@ public static class Program{
 			return version.ToString(version.Build!=0?3:2);
 		}
 	}
+
+	public static void RunWithConsole()=>Main(null).Catch(Console.Error.WriteLine);
 
 	public static async Task Main(string[] args){
 		try{
