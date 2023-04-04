@@ -15,10 +15,11 @@ public static class MouseHandler{
 
 
 	public static void Move(MouseEvent e){
-		if(MoveWindows.Enabled&&MoveWindows.IsF1KeyDown){
-			MoveWindows.Run();
-			Console.WriteLine(DateTime.UtcNow.Ticks);
-		}
+		if(MoveWindows.Enabled&&
+		   MoveWindows.IsF1KeyDown&&
+		   Modifiers.IsKeyDown(Keys.F1)
+		  ) MoveWindows.Run();
+		else MoveWindows.IsF1KeyDown=false;
 
 		if(_move.HasValue){
 			Windows.GetWindowRect(_move.Value,out var rect);

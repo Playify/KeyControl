@@ -134,7 +134,7 @@ public static class KeyboardHandler{
 				case Keys.F:
 					if(!Modifiers.Win||!Modifiers.Ctrl) return;
 					e.Handled=true;
-					if(Modifiers.Alt) Windows.SetFullscreen(Windows.GetCurrentWindow(),null);
+					if(!Modifiers.Alt) Windows.SetFullscreen(Windows.GetCurrentWindow(),null);
 					else{
 						Windows.SetFullscreen(Windows.GetCurrentWindow(),false);
 						Windows.SetMaximized(Windows.GetCurrentWindow(),null);

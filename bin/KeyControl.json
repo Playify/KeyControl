@@ -1,9 +1,10 @@
 {
-    "WebPath":"S:/Code/C#/own/KeyControl/Resources",
     "TransparencySpeed":15,
-    "CapsLockOverride":true,
-    "CapsLockAdvanced":"{AppsKey}",
-    "CapsLockCsGoK":true,
+    "CapsLock.Override":true,
+    "CapsLock.Advanced":"{AppsKey}",
+    "CapsLock.CsGoK":true,
+    "MoveWindows.Enabled":true,
+    "MoveWindows.Maximize":true,
     "HotStrings":[
         {
             "Category":"AutoCorrect",
@@ -126,20 +127,16 @@
                     "From":"@0-9",
                     "To":"0123456789",
                     "Collapsed":true
-                },
-                {
-                    "From":"@a-Z",
-                    "To":"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ",
-                    "Collapsed":true
                 }
-            ]
+            ],
+            "Collapsed":true
         },
         {
             "Category":"Unicode Specials",
             "Children":[
                 {
                     "From":"@zws",
-                    "To":"‪",
+                    "To":"​",
                     "Collapsed":true
                 },
                 {
@@ -170,7 +167,9 @@
                 },
                 {
                     "Emoji":"❤",
-                    "From":"hzz"
+                    "From":"hzz",
+                    "Enabled":false,
+                    "Collapsed":true
                 },
                 {
                     "Emoji":"🥺",
@@ -181,6 +180,12 @@
                     "Emoji":"😘",
                     "From":"bss",
                     "Regex":"(?<!trie)(?<!Urlau)(?<!Kal)bss$",
+                    "Enabled":false,
+                    "Collapsed":true
+                },
+                {
+                    "Emoji":"🙈",
+                    "From":"@ape",
                     "Collapsed":true
                 }
             ],
@@ -386,11 +391,35 @@
                 }
             ],
             "Collapsed":true
-        },
-        {
-            "From":"^=",
-            "To":"test",
-            "IgnoreCase":true
         }
-    ]
+    ],
+    "EmojiTimeout":1500,
+    "SpecialChars":{
+        "A":"α",
+        "B":"β",
+        "C":"γ",
+        "O":"Ω",
+        "W":"ω",
+        "D":"Δ",
+        "S":"ϟ",
+        "M":"μ",
+        "N":"η",
+        "T":"τ",
+        "V":"ϑ",
+        "Space":"​",
+        "P":"π",
+        "L":"λ",
+        "Y":"|"
+    },
+    "Spammer.Enabled":false,
+    "Spammer.Delay":100,
+    "Spammer.Advanced":"{X down}{Sleep 100}{X up}",
+    "Spammer.Return":false,
+    "Games.CrossHair.AutoEnableInCsGo":false,
+    "Games.CrossHair.LineColor":"00FF00",
+    "Games.CrossHair.LineGap":10,
+    "Games.CrossHair.LineLength":20,
+    "Games.CrossHair.LineWidth":2,
+    "Games.CrossHair.CenterDot":true,
+    "Games.Wasd.Direction":0
 }
