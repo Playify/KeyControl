@@ -51,7 +51,7 @@ public static class MouseHandler{
 
 	public static void Scroll(MouseEvent e){
 		if(Modifiers.Win&&Modifiers.Ctrl){
-			var alpha=Windows.SetAlpha(Windows.GetForegroundWindow(),e.Delta*Config.TransparencySpeed,true);
+			var alpha=Windows.SetAlpha(Windows.GetCurrentWindow(),e.Delta*Config.TransparencySpeed,true);
 			Text.ToolTip($"Alpha: {alpha,3:##0}/255");
 			e.Handled=true;
 		}
