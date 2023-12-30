@@ -1,11 +1,12 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Windows.Forms;
-using KeyControl.Interfaces;
 using PlayifyUtils.Utils;
 
 namespace KeyControl.Utilities;
 
+[SuppressMessage("ReSharper","UnusedMethodReturnValue.Local")]
 public partial class SendBuilder{
 	private readonly List<ProtoBase> _list=new();
 

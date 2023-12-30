@@ -104,7 +104,7 @@ public class HotStringComplexNumberConverter:HotStringUnSaveable{
 		while(true){
 			value=BigInteger.DivRem(value,radix,out var remainder);
 
-			str.Insert(0,digits[(int) remainder]);
+			str.Insert(0,digits[(int)remainder]);
 			if(value.Sign==0) return str.ToString();
 		}
 	}
@@ -115,6 +115,6 @@ public class HotStringComplexNumberConverter:HotStringUnSaveable{
 			'h'=>16,
 			'd'=>10,
 			'n'=>10,
-			var _=>0,
+			_=>0,
 		};
 }

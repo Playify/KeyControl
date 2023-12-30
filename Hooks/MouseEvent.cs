@@ -26,6 +26,6 @@ public class MouseEvent{
 			MouseButtons.Right=>Keys.RButton,
 			MouseButtons.XButton1=>Keys.XButton1,
 			MouseButtons.XButton2=>Keys.XButton2,
-			var _=>Keys.None,
+			_=>Keys.None,
 		};
 }

@@ -18,15 +18,15 @@ public static class Logger{
 		Mouse,
 	}
 
-	private static readonly string _file="log.html";
+	private const string File="log.html";
 	private static readonly StreamWriter LogStream;
 	private static Action _last=Action.None;
 
 	static Logger(){
 		if(!Config.Constant.EnableLogging) return;
-		if(File.Exists(_file)) LogStream=File.AppendText(_file);
+		if(System.IO.File.Exists(File)) LogStream=System.IO.File.AppendText(File);
 		else{
-			LogStream=File.CreateText(_file);
+			LogStream=System.IO.File.CreateText(File);
 			Log(Action.None,"<style>"+
 			                "body{word-break:break-all;white-space:pre-wrap;background:#323232;font-family: \"Helvetica\", \"Arial\", sans-serif}"+
 			                "p{display:inline;margin:0}"+
@@ -38,7 +38,7 @@ public static class Logger{
 			                "</style>");
 		}
 		LogStream.AutoFlush=true;
-		AppDomain.CurrentDomain.ProcessExit+=(sender,args)=>Log(Action.Internal,"EXIT");
+		AppDomain.CurrentDomain.ProcessExit+=(_,_)=>Log(Action.Internal,"EXIT");
 	}
 
 	private static void Log(Action action,string s){
@@ -57,7 +57,7 @@ public static class Logger{
 		});
 	}
 
-	public static void LogPacket(KeyEvent e)=>LogChars(char.ToString((char) e.ScanCode),e);//Log(Action.Packet,"█");
+	public static void LogPacket(KeyEvent e)=>LogChars(char.ToString((char)e.ScanCode),e);//Log(Action.Packet,"█");
 
 	public static void LogControl(Keys key){
 		HotStringHandler.Reset();

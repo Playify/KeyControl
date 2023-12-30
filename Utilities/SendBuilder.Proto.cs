@@ -1,6 +1,5 @@
 using System.Text;
 using System.Windows.Forms;
-using KeyControl.Interfaces;
 using PlayifyUtils.Utils;
 
 namespace KeyControl.Utilities;

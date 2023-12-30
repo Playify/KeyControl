@@ -4,6 +4,7 @@ using System.IO;
 using System.Threading.Tasks;
 using KeyControl.Features;
 using KeyControl.Features.Games;
+using KeyControl.Features.Technical;
 using KeyControl.HotString;
 using KeyControl.HotString.Complex;
 using KeyControl.HotString.Saveable;
@@ -35,7 +36,7 @@ public class Config{
 
 	static Config(){
 		//Hotkeys
-		Register(nameof(TransparencySpeed),()=>new JsonNumber(TransparencySpeed),j=>TransparencySpeed=(int) j.AsNumber());
+		Register(nameof(TransparencySpeed),()=>new JsonNumber(TransparencySpeed),j=>TransparencySpeed=(int)j.AsNumber());
 
 		CapsLock.InitConfig();
 
@@ -43,13 +44,15 @@ public class Config{
 
 		//HotStrings
 		Register(nameof(HotStrings),()=>HotStringCategory.Master.ToJsonArray(false),j=>HotStringCategory.Master.LoadJson(j.AsArray()),Restrict.File);
-		Register(nameof(EmojiTimeout),()=>EmojiTimeout,j=>EmojiTimeout=(long) j.AsNumber());
+		Register(nameof(EmojiTimeout),()=>EmojiTimeout,j=>EmojiTimeout=(long)j.AsNumber());
 
 		SpecialChars.InitConfig();
 		//NamingHelper.InitConfig();
 		Spammer.InitConfig();
 		CrossHair.InitConfig();
 		Wasd.InitConfig();
+
+		MiracastFix.InitConfig();
 	}
 
 	public static string ConfigPath{

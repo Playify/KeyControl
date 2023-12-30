@@ -211,65 +211,65 @@ public class Send{
 	#region Primitives
 	public Send Unicode(char c,SendFlags flags)
 		=>(flags&KeyPress)!=KeyPress
-		  ?Add(new Input{
-			  Type=1,
-			  InputUnion=new InputUnion{
-				  ki=new KeyBdInput{
-					  WVk=0,
-					  WScan=(short) c,
-					  Time=0,
-					  DwFlags=flags.HasFlag(KeyDown)?4:6,
-					  DwExtraInfo=flags.HasFlag(Hidden)||_hidden?ProcessHandle:IntPtr.Zero,
+			  ?Add(new Input{
+				  Type=1,
+				  InputUnion=new InputUnion{
+					  ki=new KeyBdInput{
+						  WVk=0,
+						  WScan=(short)c,
+						  Time=0,
+						  DwFlags=flags.HasFlag(KeyDown)?4:6,
+						  DwExtraInfo=flags.HasFlag(Hidden)||_hidden?ProcessHandle:IntPtr.Zero,
+					  },
 				  },
-			  },
-		  })
-		  :Unicode(c,flags&~KeyUp).Unicode(c,flags&~KeyDown);
+			  })
+			  :Unicode(c,flags&~KeyUp).Unicode(c,flags&~KeyDown);
 
 	public Send Key(Keys key,SendFlags flags)
 		=>(flags&KeyPress)!=KeyPress
-		  ?MouseButtons.Contains(key)
-		   ?Mouse(key,flags)
-		   :Add(new Input{
-			   Type=1,
-			   InputUnion=new InputUnion{
-				   ki=new KeyBdInput{
-					   WVk=(short) key,
-					   WScan=MapVirtualKey((short) key,0),
-					   Time=0,
-					   DwFlags=(flags.HasFlag(KeyDown)?0:2)|(Extended.Contains(key)?1:0),
-					   DwExtraInfo=flags.HasFlag(Hidden)||_hidden?ProcessHandle:IntPtr.Zero,
-				   },
-			   },
-		   })
-		  :Key(key,flags&~KeyUp).Key(key,flags&~KeyDown);
+			  ?MouseButtons.Contains(key)
+				   ?Mouse(key,flags)
+				   :Add(new Input{
+					   Type=1,
+					   InputUnion=new InputUnion{
+						   ki=new KeyBdInput{
+							   WVk=(short)key,
+							   WScan=MapVirtualKey((short)key,0),
+							   Time=0,
+							   DwFlags=(flags.HasFlag(KeyDown)?0:2)|(Extended.Contains(key)?1:0),
+							   DwExtraInfo=flags.HasFlag(Hidden)||_hidden?ProcessHandle:IntPtr.Zero,
+						   },
+					   },
+				   })
+			  :Key(key,flags&~KeyUp).Key(key,flags&~KeyDown);
 
 	private Send Mouse(Keys key,SendFlags flags)
 		=>(flags&KeyPress)!=KeyPress
-		  ?Add(new Input{
-			  Type=0,
-			  InputUnion=new InputUnion{
-				  mi=new MouseInput{
-					  Dx=0,
-					  Dy=0,
-					  MouseData=key switch{
-						  XButton1=>1,
-						  XButton2=>2,
-						  _=>0,
+			  ?Add(new Input{
+				  Type=0,
+				  InputUnion=new InputUnion{
+					  mi=new MouseInput{
+						  Dx=0,
+						  Dy=0,
+						  MouseData=key switch{
+							  XButton1=>1,
+							  XButton2=>2,
+							  _=>0,
+						  },
+						  Time=0,
+						  DwFlags=key switch{
+							  LButton=>flags.HasFlag(KeyDown)?0x2:0x4,
+							  RButton=>flags.HasFlag(KeyDown)?0x8:0x10,
+							  MButton=>flags.HasFlag(KeyDown)?0x20:0x40,
+							  XButton1=>flags.HasFlag(KeyDown)?0x80:0x100,
+							  XButton2=>flags.HasFlag(KeyDown)?0x80:0x100,
+							  _=>throw new ArgumentOutOfRangeException(nameof(key),key,null),
+						  },
+						  DwExtraInfo=flags.HasFlag(Hidden)||_hidden?ProcessHandle:IntPtr.Zero,
 					  },
-					  Time=0,
-					  DwFlags=key switch{
-						  LButton=>flags.HasFlag(KeyDown)?0x2:0x4,
-						  RButton=>flags.HasFlag(KeyDown)?0x8:0x10,
-						  MButton=>flags.HasFlag(KeyDown)?0x20:0x40,
-						  XButton1=>flags.HasFlag(KeyDown)?0x80:0x100,
-						  XButton2=>flags.HasFlag(KeyDown)?0x80:0x100,
-						  var _=>throw new ArgumentOutOfRangeException(nameof(key),key,null),
-					  },
-					  DwExtraInfo=flags.HasFlag(Hidden)||_hidden?ProcessHandle:IntPtr.Zero,
 				  },
-			  },
-		  })
-		  :Mouse(key,flags&~KeyUp).Mouse(key,flags&~KeyDown);
+			  })
+			  :Mouse(key,flags&~KeyUp).Mouse(key,flags&~KeyDown);
 
 	public Send Wait(int delay=0)=>delay<0?this:Add(new Input{Type=-1,InputUnion={ki=new KeyBdInput{Time=delay}}});
 	#endregion
@@ -300,15 +300,15 @@ public class Send{
 
 	public Send Click(Keys mouseButton,int x,int y,bool relative=false,bool hidden=false)
 		=>MouseMove(x,y,relative,hidden)
-		.Key(mouseButton,null,hidden);
+			.Key(mouseButton,null,hidden);
 
 	public Send Click(int x,int y,bool relative=false,bool hidden=false)
 		=>MouseMove(x,y,relative,hidden)
-		.Key(LButton,null,hidden);
+			.Key(LButton,null,hidden);
 
 	public Send ClickRight(Keys mouseButton,int x,int y,bool relative=false,bool hidden=false)
 		=>MouseMove(x,y,relative,hidden)
-		.Key(RButton,null,hidden);
+			.Key(RButton,null,hidden);
 	#endregion
 
 	#region Advanced
@@ -327,7 +327,7 @@ public class Send{
 		Mod(ModifierKeys.Control,(num1&512)!=0);
 		Mod(ModifierKeys.Alt,(num1&1024)!=0);
 		Mod(ModifierKeys.Windows,false);
-		Key((Keys) (num1&255),flags);
+		Key((Keys)(num1&255),flags);
 		return this;
 	}
 

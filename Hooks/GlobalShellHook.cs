@@ -4,6 +4,7 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using KeyControl.Features.Games;
+using KeyControl.Features.Technical;
 using KeyControl.Interfaces;
 using PlayifyUtils.Utils;
 using Clipboard=System.Windows.Clipboard;
@@ -101,7 +102,7 @@ public class GlobalShellHook:Form{
 						}
 
 						hwnd=Windows.FindWindow("NUIDialog","Mit Ihrer Office-Lizenz ist ein Problem aufgetreten");
-						if(hwnd!=IntPtr.Zero/*&&Path.GetFileName(Windows.GetExe(hwnd))=="WINWORD.EXE"*/){
+						if(hwnd!=IntPtr.Zero){
 							Windows.SendMessage(hwnd,0x10,0,0);//WM_CLOSE
 							Console.WriteLine("Managed: Office (Licence) 0x2");
 						}
@@ -109,18 +110,21 @@ public class GlobalShellHook:Form{
 					}
 					case 0x6:{
 						var hwnd=Windows.FindWindow("NUIDialog","Mit Ihrer Office-Lizenz ist ein Problem aufgetreten");
-						if(hwnd!=IntPtr.Zero/*&&Path.GetFileName(Windows.GetExe(hwnd))=="WINWORD.EXE"*/){
+						if(hwnd!=IntPtr.Zero){
 							Windows.SendMessage(hwnd,0x10,0,0);//WM_CLOSE
 							Console.WriteLine("Managed: Office (Licence) 0x6");
 						}
 						break;
 					}
-					case 0x8004:{//Office license check
+					case 0x8004:{
+						//Office license check
 						var hwnd=Windows.FindWindow("NUIDialog","Mit Ihrer Office-Lizenz ist ein Problem aufgetreten");
-						if(hwnd!=IntPtr.Zero/*&&Path.GetFileName(Windows.GetExe(hwnd))=="WINWORD.EXE"*/){
+						if(hwnd!=IntPtr.Zero){
 							Windows.SendMessage(hwnd,0x10,0,0);//WM_CLOSE
 							Console.WriteLine("Managed: Office (Licence) 0x8004");
 						}
+
+						MiracastFix.Run();
 						break;
 					}
 				}

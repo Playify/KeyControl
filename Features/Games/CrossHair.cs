@@ -116,19 +116,19 @@ public sealed class CrossHair:Form{
 		Config.Register(nameof(Games)+"."+nameof(CrossHair)+"."+nameof(Enabled),()=>Enabled,j=>Enabled=j.AsBoolean(),Config.Restrict.Website);
 		Config.Register(nameof(Games)+"."+nameof(CrossHair)+"."+nameof(AutoEnableInCsGo),()=>AutoEnableInCsGo,j=>AutoEnableInCsGo=j.AsBoolean());
 		Config.Register(nameof(Games)+"."+nameof(CrossHair)+"."+nameof(LineColor),()=>{
-			                var u=(uint) LineColor.ToArgb();
+			                var u=(uint)LineColor.ToArgb();
 			                if((u&0xFF000000)!=0xFF000000) return u.ToString("X8");
 			                u&=0xFFFFFF;
 			                return u.ToString("X6");
 		                },
 		                j=>{
-			                var u=uint.Parse(j.AsString(),NumberStyles.HexNumber);
+			                var u=uint.Parse(j.AsString()??"",NumberStyles.HexNumber);
 			                if((u&0xFF000000)==0) u|=0xFF000000;//If Alpha is 0, set Alpha to 255
-			                LineColor=Color.FromArgb((int) u);
+			                LineColor=Color.FromArgb((int)u);
 		                });
-		Config.Register(nameof(Games)+"."+nameof(CrossHair)+"."+nameof(LineGap),()=>LineGap,j=>LineGap=(int) j.AsNumber());
-		Config.Register(nameof(Games)+"."+nameof(CrossHair)+"."+nameof(LineLength),()=>LineLength,j=>LineLength=(int) j.AsNumber());
-		Config.Register(nameof(Games)+"."+nameof(CrossHair)+"."+nameof(LineWidth),()=>LineWidth,j=>LineWidth=(int) j.AsNumber());
+		Config.Register(nameof(Games)+"."+nameof(CrossHair)+"."+nameof(LineGap),()=>LineGap,j=>LineGap=(int)j.AsNumber());
+		Config.Register(nameof(Games)+"."+nameof(CrossHair)+"."+nameof(LineLength),()=>LineLength,j=>LineLength=(int)j.AsNumber());
+		Config.Register(nameof(Games)+"."+nameof(CrossHair)+"."+nameof(LineWidth),()=>LineWidth,j=>LineWidth=(int)j.AsNumber());
 		Config.Register(nameof(Games)+"."+nameof(CrossHair)+"."+nameof(CenterDot),()=>CenterDot,j=>CenterDot=j.AsBoolean());
 	}
 
@@ -138,7 +138,7 @@ public sealed class CrossHair:Form{
 		var window=Windows.GetForegroundWindow();
 
 		if(IsHwndPartOfCrossHair(window)) return;
-		if(ConfigWindow._instance?.Handle==window) return;
+		if(ConfigWindow.Hwnd==window) return;
 
 		var shouldBeVisible=Enabled;
 		if(!shouldBeVisible&&AutoEnableInCsGo)//Handle CSGO

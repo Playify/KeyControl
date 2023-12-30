@@ -73,17 +73,17 @@ public class GlobalMouseHook{
 					if(mouseEvent.Handled) return 1;
 				} else{
 					var (button,down)=
-					wParam switch{
-						513=>(MouseButtons.Left,true),
-						514=>(MouseButtons.Left,false),
-						516=>(MouseButtons.Right,true),
-						517=>(MouseButtons.Right,false),
-						519=>(MouseButtons.Middle,true),
-						520=>(MouseButtons.Middle,false),
-						523=>(lParam.mouseData==0x10000?MouseButtons.XButton1:MouseButtons.XButton2,true),
-						524=>(lParam.mouseData==0x10000?MouseButtons.XButton1:MouseButtons.XButton2,false),
-						var _=>(MouseButtons.None,false),
-					};
+						wParam switch{
+							513=>(MouseButtons.Left,true),
+							514=>(MouseButtons.Left,false),
+							516=>(MouseButtons.Right,true),
+							517=>(MouseButtons.Right,false),
+							519=>(MouseButtons.Middle,true),
+							520=>(MouseButtons.Middle,false),
+							523=>(lParam.mouseData==0x10000?MouseButtons.XButton1:MouseButtons.XButton2,true),
+							524=>(lParam.mouseData==0x10000?MouseButtons.XButton1:MouseButtons.XButton2,false),
+							_=>(MouseButtons.None,false),
+						};
 					var mouseEvent=new MouseEvent(lParam.pt.x,lParam.pt.y,button);
 					(down?KeyDown:KeyUp)?.Invoke(mouseEvent);
 					if(mouseEvent.Handled) return 1;

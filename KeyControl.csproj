@@ -60,6 +60,8 @@
         <Compile Include="Features\NamingHelper.cs" />
         <Compile Include="Features\Spammer.cs" />
         <Compile Include="Features\SpecialChars.cs" />
+        <Compile Include="Features\Technical\MiracastFix.cs" />
+        <Compile Include="Features\Technical\OfficeClipboard.cs" />
         <Compile Include="Hooks\GlobalEventHook.cs" />
         <Compile Include="Hooks\GlobalKeyboardHook.cs" />
         <Compile Include="Hooks\GlobalMouseHook.cs" />
@@ -100,7 +102,6 @@
         <Compile Include="Utilities\SendBuilder.Proto.cs">
             <DependentUpon>SendBuilder.cs</DependentUpon>
         </Compile>
-        <Compile Include="Utilities\Utils.cs" />
     </ItemGroup>
     <ItemGroup>
         <None Include="packages.config" />

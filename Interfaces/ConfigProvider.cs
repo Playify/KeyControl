@@ -56,7 +56,7 @@ public class ConfigProvider:WebBase{
 			}
 			await HandleWebSocket(webSocket);
 		} else if(session.Path=="/version"){
-			var version=ConfigWindow._instance.Text;
+			var version=ConfigWindow.Title;
 
 			await session.Send
 			             .Header("Access-Control-Allow-Origin","*")
@@ -221,13 +221,13 @@ public class ConfigProvider:WebBase{
 							if(i==0) HotStringCategory.Blocked.Remove(id);
 							else HotStringCategory.Blocked[id]=i;
 						}
-						id=block.Value=(uint) value.AsNumber();
+						id=block.Value=(uint)value.AsNumber();
 						if(id!=0){
 							var i=(HotStringCategory.Blocked.TryGetValue(id,out var tmp)?tmp:0)+1;
 							HotStringCategory.Blocked[id]=i;
 						}
 
-						array=new JsonArray(HotStringCategory.Blocked.Keys.Select(u=>(long) u));
+						array=new JsonArray(HotStringCategory.Blocked.Keys.Select(u=>(long)u));
 					}
 					var answer="hotStringBlock="+array;
 					await Task.WhenAll(Connected.Select(w=>w.Send(answer)));

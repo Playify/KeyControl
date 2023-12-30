@@ -15,7 +15,7 @@ public abstract class HotStringBase:HotStringUnSaveable{
 	private static readonly Dictionary<uint,HotStringBase> IdMap=new();
 
 	protected HotStringBase(JsonObject json){
-		Id=(uint?) json?.Get("Id")?.AsNumber()??(uint) Interlocked.Increment(ref _nextId);
+		Id=(uint?)json?.Get("Id")?.AsNumber()??(uint)Interlocked.Increment(ref _nextId);
 		IdMap[Id]=this;
 		Enabled=json?.Get("Enabled")?.AsBoolean()??true;
 		Collapsed=json?.Get("Collapsed")?.AsBoolean()??false;
@@ -38,7 +38,7 @@ public abstract class HotStringBase:HotStringUnSaveable{
 	public static HotStringBase Get(Json json){
 		if(json is JsonObject o) return Get(o);
 		lock(IdMap)
-			if(IdMap.TryGetValue((uint) json.AsNumber(),out var hs))
+			if(IdMap.TryGetValue((uint)json.AsNumber(),out var hs))
 				return hs;
 		throw new ArgumentOutOfRangeException();
 	}
@@ -65,13 +65,13 @@ public abstract class HotStringBase:HotStringUnSaveable{
 		lock(IdMap)
 			switch(value){
 				case JsonNumber number:
-					IdMap.Remove((uint) number.AsNumber());
+					IdMap.Remove((uint)number.AsNumber());
 					return number;
 				case JsonArray array:
 					HotStringCategory.Master.LoadJson(array);
 					return HotStringCategory.Master.ToJsonArray(true);
 				case JsonObject obj:
-					var id=(uint) obj.Get("Id").AsNumber();
+					var id=(uint)(obj.Get("Id")??throw new Exception("Error getting 'Id'")).AsNumber();
 					var b=IdMap.TryGetValue(id,out var old);
 
 					var @new=Get(value);

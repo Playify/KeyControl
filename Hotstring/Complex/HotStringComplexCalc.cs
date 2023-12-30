@@ -38,7 +38,11 @@ public class HotStringComplexCalc:HotStringUnSaveable{
 
 	public static string Calculate(string expression)=>Calculate(ref expression);
 
-	public static string Calculate(ref string expression){
+	public static string Calculate(ref string expression)=>Calculate(ref expression,false)??Calculate(ref expression,true);
+
+	public static string Calculate(string expression,bool german)=>Calculate(ref expression,german);
+
+	public static string Calculate(ref string expression,bool german){
 		while(true){
 			expression=expression.Trim(' ','\t','\r','\n');
 			break;
@@ -62,9 +66,10 @@ public class HotStringComplexCalc:HotStringUnSaveable{
 		object o;
 		var textWriter=Console.Error;
 		try{
-			Console.Write("Calculating:\""+expression+"\"=");
+			Console.Write($"Calculating ({(german?"German":"English")}):\""+expression+"\"=");
 			Console.SetError(TextWriter.Null);
-			var ex=new Expression(expression,EvaluateOptions.IgnoreCase);
+			if(german) expression=expression.Replace(',','.');
+			var ex=new Expression(expression,EvaluateOptions.IgnoreCase|EvaluateOptions.RoundAwayFromZero);
 			ex.EvaluateParameter+=Parameter;
 			ex.EvaluateFunction+=Function;
 			o=ex.Evaluate();
@@ -76,18 +81,8 @@ public class HotStringComplexCalc:HotStringUnSaveable{
 		}
 		var s=o switch{
 			bool valBool=>valBool?"true":"false",
-			sbyte valSbyte=>valSbyte.ToString(CultureInfo.InvariantCulture),
-			byte valByte=>valByte.ToString(CultureInfo.InvariantCulture),
-			short valShort=>valShort.ToString(CultureInfo.InvariantCulture),
-			ushort valUshort=>valUshort.ToString(CultureInfo.InvariantCulture),
-			int valInt=>valInt.ToString(CultureInfo.InvariantCulture),
-			uint valUint=>valUint.ToString(CultureInfo.InvariantCulture),
-			long valLong=>valLong.ToString(CultureInfo.InvariantCulture),
-			ulong valUlong=>valUlong.ToString(CultureInfo.InvariantCulture),
-			float valFloat=>valFloat.ToString(CultureInfo.InvariantCulture),
-			double valDouble=>valDouble.ToString(CultureInfo.InvariantCulture),
-			decimal valDecimal=>valDecimal.ToString(CultureInfo.InvariantCulture),
-			var _=>o.ToString(),
+			IConvertible valNumber=>valNumber.ToString(german?CultureInfo.GetCultureInfo("de_DE"):CultureInfo.InvariantCulture),
+			_=>o.ToString(),
 		};
 		Console.WriteLine(s);
 		return s;
@@ -138,7 +133,7 @@ public class HotStringComplexCalc:HotStringUnSaveable{
 						else functionArgs.Result=Random.NextDouble()*Convert.ToDouble(o);
 						break;
 					case 2:
-						functionArgs.Result=Random.Next((int) functionArgs.Parameters[0].Evaluate(),(int) functionArgs.Parameters[1].Evaluate());
+						functionArgs.Result=Random.Next((int)functionArgs.Parameters[0].Evaluate(),(int)functionArgs.Parameters[1].Evaluate());
 						break;
 				}
 				break;

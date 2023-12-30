@@ -45,6 +45,8 @@ public class GlobalEventHook{
 			case 0x800e:return;
 			case 0x800b when hwnd==IntPtr.Zero:return;
 		}
+
+
 		if(ievent==0x800b){
 			if(hwnd==IntPtr.Zero) return;
 

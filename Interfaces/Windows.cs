@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
@@ -10,6 +11,8 @@ using KeyControl.Utilities;
 
 namespace KeyControl.Interfaces;
 
+[SuppressMessage("ReSharper","PrivateFieldCanBeConvertedToLocalVariable")]
+[SuppressMessage("ReSharper","InconsistentNaming")]
 public static class Windows{
 	private static readonly IntPtr NegOne=new(-1);
 	private static readonly IntPtr NegTwo=new(-2);
@@ -34,6 +37,15 @@ public static class Windows{
 	#region DLL Imports
 	[DllImport("user32.dll",CharSet=CharSet.Auto)]
 	public static extern IntPtr FindWindow(string lpClassName,string lpWindowName);
+
+	public delegate bool EnumWindowsProc(IntPtr hWnd,IntPtr lParam);
+
+	[DllImport("user32.dll")]
+	public static extern bool EnumWindows(EnumWindowsProc enumProc,IntPtr lParam);
+
+	[DllImport("user32.dll")]
+	public static extern bool EnumChildWindows(IntPtr hWndParent,EnumWindowsProc enumProc,IntPtr lParam);
+
 
 	[DllImport("user32.dll",CharSet=CharSet.Auto)]
 	public static extern IntPtr SendMessage(IntPtr hWnd,uint msg,uint wParam,uint lParam);
@@ -122,7 +134,7 @@ public static class Windows{
 			A=0;
 		}
 
-		public uint GetRgb()=>(uint) ((R<<16)|(G<<8)|B);
+		public uint GetRgb()=>(uint)((R<<16)|(G<<8)|B);
 	}
 
 	[StructLayout(LayoutKind.Sequential)]
@@ -146,9 +158,6 @@ public static class Windows{
 
 		public override string ToString()=>$"({Left},{Top})->({Right},{Bottom})";
 	}
-
-	[DllImport("User32.dll")]
-	private static extern bool SystemParametersInfo(uint uiAction,uint uiParam,ref AnimationInfo pvParam,uint fWinIni);
 
 
 	[DllImport("gdi32.dll",CharSet=CharSet.Auto,SetLastError=true,ExactSpelling=true)]
@@ -224,7 +233,7 @@ public static class Windows{
 	#region Transparency
 	public static byte GetAlpha(IntPtr hwnd){
 		GetLayeredWindowAttributes(hwnd,out _,out var alpha,out var dw);
-		return (dw&2)!=0?alpha:(byte) 255;
+		return (dw&2)!=0?alpha:(byte)255;
 	}
 
 	public static ColorRef? GetTransparentColor(IntPtr hwnd){
@@ -242,7 +251,7 @@ public static class Windows{
 
 		if(delta) val+=alpha;
 
-		SetLayeredWindowAttributes(hwnd,color,alpha=(byte) (val<0?0:val>255?255:val),dw|2);
+		SetLayeredWindowAttributes(hwnd,color,alpha=(byte)(val<0?0:val>255?255:val),dw|2);
 
 		return alpha;
 	}
@@ -271,7 +280,7 @@ public static class Windows{
 		using(var gsrc=Graphics.FromHwnd(IntPtr.Zero)){
 			var hSrcDC=gsrc.GetHdc();
 			var hDC=gdest.GetHdc();
-			var retval=BitBlt(hDC,0,0,1,1,hSrcDC,location.x,location.y,(int) CopyPixelOperation.SourceCopy);
+			BitBlt(hDC,0,0,1,1,hSrcDC,location.x,location.y,(int)CopyPixelOperation.SourceCopy);
 			gdest.ReleaseHdc();
 			gsrc.ReleaseHdc();
 		}
@@ -284,7 +293,7 @@ public static class Windows{
 	public static Process GetProcess(IntPtr hwnd){
 		try{
 			GetWindowThreadProcessId(hwnd,out var pid);
-			return Process.GetProcessById((int) pid);
+			return Process.GetProcessById((int)pid);
 		} catch(Exception){
 			return null;
 		}
@@ -299,7 +308,7 @@ public static class Windows{
 			var id=process.Id;
 			if(id==0) return "";
 			if(_exe.TryGetValue(id,out var exe)) return exe;
-			return _exe[id]=process?.MainModule?.FileName??"";
+			return _exe[id]=process.MainModule?.FileName??"";
 		} catch(Exception){
 			return "";
 		}
@@ -318,9 +327,35 @@ public static class Windows{
 		}
 	}
 
+	public static string GetText(IntPtr hwnd){
+		try{
+			var length=GetWindowTextLength(hwnd)+1;
+			var title=new StringBuilder(length);
+			GetWindowText(hwnd,title,length);
+			return title.ToString();
+		} catch(AccessViolationException e){
+			Console.WriteLine(e);
+			return null;
+		}
+	}
+
+	[DllImport("user32.dll")]
+	private static extern int GetClassName(IntPtr hWnd,StringBuilder lpClassName,int nMaxCount);
+
+	public static string GetClass(IntPtr hwnd){
+		try{
+			var clazz=new StringBuilder(256);
+			GetClassName(hwnd,clazz,clazz.Capacity);
+			return clazz.ToString();
+		} catch(AccessViolationException e){
+			Console.WriteLine(e);
+			return null;
+		}
+	}
+
 	public static void SendKey(IntPtr hwnd,Keys keys){
-		PostMessage(hwnd,0x100,(int) keys,0);//WM_KEYDOWN
-		PostMessage(hwnd,0x101,(int) keys,0);//WM_KEYUP
+		PostMessage(hwnd,0x100,(int)keys,0);//WM_KEYDOWN
+		PostMessage(hwnd,0x101,(int)keys,0);//WM_KEYUP
 	}
 	#endregion
 
@@ -328,7 +363,7 @@ public static class Windows{
 	public static bool SetBorderless(IntPtr hwnd,bool? b){
 		var l=GetWindowLong(hwnd,-16);//-16=GWL_STYLE
 		var ret=!(b??(l&0xC40000)!=0);
-		l=Utils.SetBits(l,0xc40000,ret);//0xC40000=WS_CAPTION|WS_THICKFRAME
+		l=ret?l|0xc40000:l&~0xc40000;//0xC40000=WS_CAPTION|WS_THICKFRAME
 		SetWindowLong(hwnd,-16,l);
 		SetWindowPos(hwnd,IntPtr.Zero,0,0,0,0,0x27);
 		GetClientRect(hwnd,out var rect);

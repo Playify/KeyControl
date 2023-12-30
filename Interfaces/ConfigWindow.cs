@@ -9,9 +9,10 @@ namespace KeyControl.Interfaces;
 
 public sealed class ConfigWindow:Form{
 	private static readonly bool DarkMode;
+	public static IntPtr? Hwnd=>_instance?.Handle;
+	public static readonly string Title=$"KeyControl ({Program.Version})";
 
-
-	public static ConfigWindow _instance;
+	private static ConfigWindow _instance;
 
 	private readonly WebBrowser _browser;
 	private bool _allowShowDisplay;
@@ -21,7 +22,7 @@ public sealed class ConfigWindow:Form{
 	static ConfigWindow(){
 		try{
 			var key=Registry.CurrentUser.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize");
-			if(((int?) key?.GetValue("AppsUseLightTheme",1)??1)!=0) return;//if light mode, return
+			if(((int?)key?.GetValue("AppsUseLightTheme",1)??1)!=0) return;//if light mode, return
 		} catch(Exception e){
 			Console.WriteLine(e);
 			return;//if can't get value, use light mode by default 
@@ -35,7 +36,7 @@ public sealed class ConfigWindow:Form{
 		MinimumSize=new Size(size,size*9/16);
 		TopMost=true;
 		Icon=new Icon(typeof(Program),"Resources.favicon.ico");
-		Text=$"KeyControl ({Program.Version})";
+		Text=Title;
 		_instance=this;
 		_browser=new WebBrowser{
 			Dock=DockStyle.Fill,
@@ -43,7 +44,7 @@ public sealed class ConfigWindow:Form{
 			IsWebBrowserContextMenuEnabled=false,
 		};
 
-		_browser.PreviewKeyDown+=(s,e)=>{
+		_browser.PreviewKeyDown+=(_,e)=>{
 			switch(e.KeyCode){
 				case Keys.F5:
 					e.IsInputKey=true;
@@ -83,7 +84,7 @@ public sealed class ConfigWindow:Form{
 
 		};
 		_browser.DocumentCompleted+=(_,_)=>{
-			var success=(bool?) _browser.Document?.InvokeScript("setDarkMode",new object[]{DarkMode});
+			var success=(bool?)_browser.Document?.InvokeScript("setDarkMode",new object[]{DarkMode});
 			if(!success.GetValueOrDefault()) Console.WriteLine("Error setting Dark Mode for Website");
 		};
 		Controls.Add(_browser);
@@ -160,22 +161,22 @@ public sealed class ConfigWindow:Form{
 	}
 
 	public static void Open()
-		=>_instance.BeginInvoke((Action) (()=>{
-				                                 var b=!IsWindowVisible(_instance.Handle);
-				                                 if(b){
-					                                 Windows.GetCursorPos(out var pos);
-					                                 var screen=Screen.FromPoint(new Point(pos.x,pos.y));
-					                                 var rect=screen.WorkingArea;
-					                                 var size=_instance.Size;
-					                                 var x=rect.X+rect.Width/2-size.Width/2;
-					                                 var y=rect.Y+rect.Height/2-size.Height/2;
+		=>_instance.BeginInvoke((Action)(()=>{
+				                                var b=!IsWindowVisible(_instance.Handle);
+				                                if(b){
+					                                Windows.GetCursorPos(out var pos);
+					                                var screen=Screen.FromPoint(new Point(pos.x,pos.y));
+					                                var rect=screen.WorkingArea;
+					                                var size=_instance.Size;
+					                                var x=rect.X+rect.Width/2-size.Width/2;
+					                                var y=rect.Y+rect.Height/2-size.Height/2;
 
-					                                 _instance._allowShowDisplay=true;
-					                                 _instance.Location=new Point(x,y);
-				                                 }
-				                                 _instance.Visible=b;
-				                                 if(b) _instance.Focus();
-			                                 }));
+					                                _instance._allowShowDisplay=true;
+					                                _instance.Location=new Point(x,y);
+				                                }
+				                                _instance.Visible=b;
+				                                if(b) _instance.Focus();
+			                                }));
 
-	public static void CloseToTray()=>_instance.BeginInvoke((Action) (()=>{_instance.Visible=false;}));
+	public static void CloseToTray()=>_instance.BeginInvoke((Action)(()=>{_instance.Visible=false;}));
 }

@@ -45,7 +45,9 @@ public static class KeyboardHandler{
 					if(MoveWindows.Execute(ref _repressWinOnF1)){
 						MoveWindows.IsF1KeyDown=e.Key==Keys.F1;
 						e.Handled=true;
-					} else MoveWindows.IsF1KeyDown=false;
+					} else{
+						MoveWindows.IsF1KeyDown=false;
+					}
 					return;
 				}
 				case Keys.CapsLock:{

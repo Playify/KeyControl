@@ -1,4 +1,3 @@
-using System;
 using System.Windows.Forms;
 using KeyControl.Hooks;
 using KeyControl.Interfaces;
@@ -96,10 +95,10 @@ public static class Wasd{
 
 	public static void InitConfig(){
 		Config.Register(nameof(Games)+"."+nameof(Wasd)+"."+nameof(Enabled),()=>Enabled,j=>Enabled=j.AsBoolean(),Config.Restrict.Website);
-		Config.Register(nameof(Games)+"."+nameof(Wasd)+"."+nameof(Direction),()=>Direction,j=>Direction=(int) j.AsNumber());
+		Config.Register(nameof(Games)+"."+nameof(Wasd)+"."+nameof(Direction),()=>Direction,j=>Direction=(int)j.AsNumber());
 	}
 
-	public static (bool w,bool a,bool s,bool d) Rotate((bool w,bool a,bool s,bool d) wasd,int direction){
+	private static (bool w,bool a,bool s,bool d) Rotate((bool w,bool a,bool s,bool d) wasd,int direction){
 		var (w,a,s,d)=wasd;
 
 		if(w&&s) (w,s)=(false,false);
@@ -113,13 +112,5 @@ public static class Wasd{
 		if(a&&d) (a,d)=(false,false);
 
 		return (w,a,s,d);
-	}
-
-	public static void Test(){
-		var wasd=(true,false,false,false);
-		for(var i=0;i<=8;i++){
-			Console.WriteLine(i+" "+wasd);
-			wasd=Rotate(wasd,1);
-		}
 	}
 }
