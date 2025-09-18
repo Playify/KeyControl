@@ -1,36 +1,22 @@
-using System;
-using System.Runtime.InteropServices;
-using KeyControl.Interfaces;
+using KeyControl.Configuration;
+using KeyControl.Util;
+using PlayifyUtility.Windows.Features.Hooks;
+using PlayifyUtility.Windows.Win;
 
 namespace KeyControl.Features.Technical;
 
+[InitOnLoad]
 public static class MiracastFix{
-	private static bool _enabled=true;
+	private static readonly ConfigValue<bool> Enabled=ConfigValue.Create(true,"Technical","MiracastFix").Listen(b=>Utils.UiThread.Invoke(()=>{
+		_hook?.Dispose();
+		if(b) _hook=GlobalEventHook.Hook(0x8004,_=>FixNow());
+		FixNow();
+	}));
+	private static IDisposable? _hook;
 
-	public static void InitConfig(){
-		Config.Register(nameof(Technical)+"."+nameof(MiracastFix),()=>_enabled,j=>_enabled=j.AsBoolean());
-	}
+	private static void FixNow(){
+		if(!Enabled.Value) return;
 
-
-	[DllImport("user32.dll",CharSet=CharSet.Auto,SetLastError=true)]
-	private static extern bool SystemParametersInfo(int uiAction,int uiParam,out int pvParam,int fWinIni);
-
-	[DllImport("user32.dll",CharSet=CharSet.Auto,SetLastError=true)]
-	private static extern bool SystemParametersInfo(int uiAction,int uiParam,int pvParam,int fWinIni);
-
-	private static int Delay{
-		get
-			=>!SystemParametersInfo(0x0016,0,out var delay,0)
-				  ?throw new Exception("Failed to retrieve keyboard repeat delay.")
-				  :delay;
-		set{
-			if(!SystemParametersInfo(0x0017,value,0,0)) throw new Exception("Failed to set keyboard repeat delay.");
-		}
-	}
-
-	public static void Run(){
-		if(!_enabled) return;
-
-		if(Delay!=1) Delay=1;
+		if(WinSystem.KeyboardDelay!=1) WinSystem.KeyboardDelay=1;
 	}
 }

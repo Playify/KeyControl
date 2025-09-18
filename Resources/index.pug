@@ -3,60 +3,22 @@ head
 	meta(charset="UTF-8")
 	meta(http-equiv="X-UA-Compatible" content="IE=edge")
 	title KeyControl
-	if combine
-		style: include style.css
-		script: include script.js
-	else
-		link(rel="stylesheet" href="style.css")
-		script(src="script.js")
+	link(rel="icon" href="logo.png" type="image/png")
+	link(rel="stylesheet" href="style.css")
+	script(type="text/javascript" src="script.js")
 nav
+	a(href="#windows") Windows
 	a(href="#hotkeys") Hotkeys
-	a(href="#advancedkeys") Advanced Keys
 	a(href="#games") Games
-	a(href="#hotstrings") Hotstrings
 	a(href="#inline") Inline
-	//a(href="#naminghelper") Namer
-	.spacer
-	a(href="#technical") Technical
-	a(href="#test") Test Area 
-		sub 🛈
+	a(href="#hotstrings") Hotstrings
+	div(style="margin-top:auto")
+	a(href="#test") Test Area
 main
-	#hotkeys
-		.shiftInfo
-			| Use
-			span.keycombo Shift
-			| to use Window under Cursor instead of focused Window
+	#windows
 		table
 			tr.title
-				td Mouse
-			tr
-				td Move Window
-				td.keycombo Ctrl+Win+Left Click
-			tr
-				td Resize Window
-				td.keycombo Ctrl+Win+Right Click
-			tr
-				td Transparency
-				td.keycombo Ctrl+Win+ScrollWheel
-			tr
-				td Scroll modifier 
-					sub (best: 1,3,5,15,17,51,85,255)
-				td
-					input.byte(name="TransparencySpeed")
-			tr.title
-				td Windows
-			tr
-				td Get color under Cursor RGB
-				td.keycombo Ctrl+Win+C
-			tr
-				td Copy color under Cursor RGB
-				td.keycombo Ctrl+Win+Alt+C
-			tr
-				td Fullscreen (Borderless)
-				td.keycombo Ctrl+Win+F
-			tr
-				td Fullscreen (Maximize)
-				td.keycombo Ctrl+Win+Alt+F
+				td Window properties
 			tr
 				td Always on top
 				td.keycombo Ctrl+Win+T
@@ -67,165 +29,237 @@ main
 				td Clickthrough
 				td.keycombo Ctrl+Win+H
 			tr
-				td Set transparent color 
-					sub(title="Doesn't work well with some windows") 🛈
-				td.keycombo Ctrl+Win+X
+				td Fullscreen (Borderless)
+				td.keycombo Ctrl+Win+F
+			tr.faded
+				td Fullscreen (Maximized)
+				td.keycombo Ctrl+Win+Alt+F
 			tr
 				td Hide window
 				td.keycombo Ctrl+Win+M
 			tr
 				td Unhide window
 				td.keycombo Ctrl+Win+N
+			tr.faded
+				td Transparent color
+					sub(title="Doesn't work well with some windows") 🛈
+				td.keycombo Ctrl+Win+X
+
+
 			tr.title
-				td Others
+				td Transparency
 			tr
-				td Pause Video
-				td.keycombo Pause
+				td Toggle transparency
+				td.keycombo Ctrl+Win+Middle Click
 			tr
-				td Kill KeyControl
-				td.keycombo Ctrl+Win+Esc
+				td Change transparency
+				td.keycombo Ctrl+Win+Scrollwheel
+			tr
+				td
+					| Change by
+					sub(title="Good values are 1,3,5,15,17,51,85,255") 🛈
+				td: input.int(name="Windows.Alpha" min=0 max=255)
+
+
+			tr.title
+				td
+					.checkbox(name="Windows.Move.F1")
+					| Move window (F1)
+			tr
+				td Move window to current screen
+				td.keycombo F1
+			tr
+				td Maximize window on move
+				td: .checkbox(name="Windows.Move.Maximize")
+			tr.faded
+				td Normal F1
+				td.keycombo Win+F1
+			tr.faded
+				td Using HTC Vive:#{' '}
+					span.keycombo £
+					| #{' '}(on VR keyboard)
+				td: .checkbox(name="Windows.Move.Vive")
+
+
+			tr.title
+				td
+					.checkbox(name="Windows.Move.Mouse")
+					| Move window (Mouse)
+			tr
+				td Drag to move
+				td.keycombo Ctrl+Win+Left Mouse
+			tr
+				td Drag to resize
+				td.keycombo Ctrl+Win+Right Mouse
+	#hotkeys
+		table
+			tr.title
+				td Hotkeys
+			tr
+				td Get color under cursor
+				td.keycombo Ctrl+Win+C
 			tr
 				td Google selected text
 				td.keycombo Ctrl+Win+G
 			tr
-				td Keep key down 
-					sub(title="Press this Combo, then press all the keys, that should be held down, simultaneously.\nTo cancel a pressed key, just press the key again") 🛈
+				td Keep key down
+					sub(title="Press this Combo, then press all the keys, that should be held down, simultaneously.\n"+
+					"To cancel a pressed key, just press that key again") 🛈
 				td.keycombo Ctrl+Win+K
-	#advancedkeys
-		table
-			tr.title
-				td CapsLock
 			tr
-				td Open Settings Window
+				td Break out of games (unfocus)
+				td.keycombo Ctrl+Win+Pause
+			tr
+				td
+					| Kill focused Program (Similar to
+					span.keycombo Alt+F4
+					| )
+				td.keycombo Ctrl+Win+F4
+			tr
+				td Kill KeyControl
+				td.keycombo Ctrl+Win+Esc
+
+
+			tr.title
+				td(colspan=2)
+					.checkbox(name="Hotkeys.CapsLock.Enabled")
+					| CapsLock remapping
+			tr
+				td Open Settings Menu
 				td.keycombo Win+CapsLock
 			tr
-				td Toggle CapsLock 
-					sub (Only for enabling)
+				td Toggle CapsLock anyways
 				td.keycombo Ctrl+CapsLock | Shift+CapsLock
 			tr
-				td Override CapsLock
-				td
-					.check.box(name="CapsLock.Override")
-			tr
-				td Replacement
-				td
-					textarea(name="CapsLock.Advanced")
+				td Action
+				td: textarea.action(name="Hotkeys.CapsLock.Action")
+
+
 			tr.title
-				td Spammer
-			tr
-				td Enable Spammer
 				td
-					.check.box(name="Spammer.Enabled")
+					.checkbox(name="Hotkeys.Spammer.Enabled")
+					| Spammer
 			tr
-				td Key combo
-				td.keycombo ScrollLock
+				td Toggle spamming
+					sub(title="There is an indicator in the bottom right corner of the screen, that shows if the spammer is running") 🛈
+				td.keycombo  ScrollLock
 			tr
-				td Delay in ms
-				td
-					input.int(name="Spammer.Delay")
+				td Delay
+				td: input.int(name="Hotkeys.Spammer.Delay")
 			tr
 				td Action
-				td
-					textarea(name="Spammer.Advanced")
+				td: textarea.action(name="Hotkeys.Spammer.Action")
 			tr
-				td Press
+				td
+					| Press
 					span.keycombo Return
 					| afterwards
-				td
-					.check.box(name="Spammer.Return")
+				td: .checkbox(name="Hotkeys.Spammer.Return")
+
+
 			tr.title
-				td Move Windows
+				td Custom Action
+					sub(title="Helpful for pasting text within remote desktop apps, that don't sync the clipboard.") 🛈
 			tr
-				td Enable Move Windows
-				td
-					.check.box(name="MoveWindows.Enabled")
+				td Perform custom action
+				td.keycombo Ctrl+Win+V
 			tr
-				td Key combo
-				td.keycombo F1
+				td Action/Text
+				td: textarea.action(name="Hotkeys.CustomAction.Action")
 			tr
-				td Normal F1
-				td.keycombo Win+F1
-			tr
-				td Maximize Windows
-				td
-					.check.box(name="MoveWindows.Maximize")
+				td Paste as raw text
+				td: .checkbox(name="Hotkeys.CustomAction.RawText")
 	#games
 		table
 			tr.title
-				td CrossHair
-			tr
-				td Enabled
 				td
-					.check.box(name="Games.CrossHair.Enabled")
+					.checkbox(name="Games.ControllerAsMouse.Enabled")
+					| Controller as Mouse
+			tr
+				td(colspan=2)
+					img.controllerSvg(src="/controller.svg")
+			tr
+				td Custom Action for
+					span.keycombo Back
+				td: textarea.action(name="Games.ControllerAsMouse.Actions.Back")
+			tr
+				td Custom Action for
+					span.keycombo Start
+				td: textarea.action(name="Games.ControllerAsMouse.Actions.Home")
+			tr
+				td Custom Action for
+					span.keycombo DPAD Up
+				td: textarea.action(name="Games.ControllerAsMouse.Actions.DPadUp")
+			tr
+				td Custom Action for
+					span.keycombo DPAD Left
+				td: textarea.action(name="Games.ControllerAsMouse.Actions.DPadLeft")
+			tr
+				td Custom Action for
+					span.keycombo DPAD Down
+				td: textarea.action(name="Games.ControllerAsMouse.Actions.DPadDown")
+			tr
+				td Custom Action for
+					span.keycombo DPAD Right
+				td: textarea.action(name="Games.ControllerAsMouse.Actions.DPadRight")
+
+
+			tr.title
+				td
+					.checkbox(name="Games.CrossHair.Enabled")
+					| CrossHair
 			tr
 				td Toggle CrossHair
-				td.keycombo Ctrl+Win+V
+				td.keycombo Ctrl+Win+S
 			tr
-				td Auto Enable in CSGO
-				td
-					.check.box(name="Games.CrossHair.AutoEnableInCsGo")
+				td Line color
+				td: input.color(name="Games.CrossHair.Color")
 			tr
-				td Line Color
-				td
-					input.color(name="Games.CrossHair.LineColor")
+				td Line length
+				td: input.int(name="Games.CrossHair.Length")
 			tr
-				td Line Gap
-				td
-					input.int(name="Games.CrossHair.LineGap")
+				td Line thickness
+				td: input.int(name="Games.CrossHair.Thickness")
 			tr
-				td Line Length
-				td
-					input.int(name="Games.CrossHair.LineLength")
+				td Line gap
+				td: input.int(name="Games.CrossHair.Gap")
 			tr
-				td Line Width
-				td
-					input.int(name="Games.CrossHair.LineWidth")
-			tr
-				td Center Dot
-				td
-					.check.box(name="Games.CrossHair.CenterDot")
+				td Center dot
+				td: .checkbox(name="Games.CrossHair.Dot")
+
+
 			tr.title
-				td Walking Direction
-			tr
-				td Enabled
-				td
-					.check.box(name="Games.Wasd.Enabled")
+				td(colspan=2)
+					| Rotate WASD (Challenge)
+					button#rotateWasd OFF
 			tr
 				td Direction
 				td
-					table.direction
+					table.rotateWasd
 						tr
-							td
-								.check.box(name="Games.Wasd.Direction=7")
-							td
-								.check.box(name="Games.Wasd.Direction=0")
-							td
-								.check.box(name="Games.Wasd.Direction=1")
+							td: .box(value=7)
+							td: .box(value=0)
+							td: .box(value=1)
 						tr
+							td: .box(value=6)
 							td
-								.check.box(name="Games.Wasd.Direction=6")
-							td
-
-							td
-								.check.box(name="Games.Wasd.Direction=2")
+							td: .box(value=2)
 						tr
-							td
-								.check.box(name="Games.Wasd.Direction=5")
-							td
-								.check.box(name="Games.Wasd.Direction=4")
-							td
-								.check.box(name="Games.Wasd.Direction=3")
-	#hotstrings(name="HotStrings")
+							td: .box(value=5)
+							td: .box(value=4)
+							td: .box(value=3)
 	#inline
 		table
 			tr.title
-				td Calculate
+				td
+					.checkbox(name="Calculate.NumLock")
+					| Calculate
 			tr
-				td Calculate Selection
+				td Calculate selected text
 				td.keycombo NumLock
 			tr
-				td Toggle NumLock
-				td.keycombo Shift+NumLock
+				td Toggle NumLock anyways
+				td.keycombo Ctrl+NumLock | Shift+NumLock
 			tr
 				td Hotstring
 				td
@@ -234,141 +268,43 @@ main
 						i expression
 						| ⏎
 			tr
-				td Calculate Now
+				td Calculate now
 				td
-					textarea#calc.now
-			tr
-				td
-				td
-					textarea(name="calc", readonly)
+					textarea(name="Internal.Calculate.Expression")
+					textarea(readonly name="Internal.Calculate.Result")
+
+
 			tr.title
-				td Flip Upside Down
+				td Flip upside-down
 			tr
 				td Hotstring
 				td
 					span.hotstring
-						| @flip 
+						| @flip#{' '}
 						i text
 						| ⏎
 			tr
-				td Flip Now
+				td Flip now
 				td
-					textarea(name="flip1")
-			tr
-				td
-				td
-					textarea(name="flip2")
+					textarea(name="Internal.Flip.A")
+					textarea(name="Internal.Flip.B")
+
 			tr.title
 				td Unicode
 			tr
-				td Any Unicode
-				td
-					span.hotstring
-						| @u+
-						i code
-						| ⏎
-			tr
-				td 4 Digit Unicode
+				td Hotstring
 				td
 					span.hotstring
 						| @u
 						i code
-			//tr
-			//	td 8 Digit Unicode
-			//	td
-			//		span.hotstring
-			//			| @U
-			//			i code
-			tr
-				td Convert Now (\u???? ⇌ �)
-				td
-					textarea(name="unicode1")
-			tr
-				td
-				td
-					textarea(name="unicode2")
-			tr.title
-				td Number Converter
-			tr
-				td HotStrings
-				td(style="line-height:1.5em")
-					span.hotstring
-						| @
-						b [bdh]
-						b [bdh]
-						i number
-						| ⏎
-					br
-					| e.g. binary to hex:
-					span.hotstring
-						| @bh
-						i number
 						| ⏎
 			tr
-				td Convert Now: BIN 
-					sub (Base 2)
+				td Convert now (\u???? ⇌ �)
 				td
-					textarea(name="convertBin")
-			tr
-				td Convert Now: DEC 
-					sub (Base 10)
-				td
-					textarea(name="convertDec")
-			tr
-				td Convert Now: HEX 
-					sub (Base 16)
-				td
-					textarea(name="convertHex")
-
-	//#naminghelper
-		table
-			tr.title
-				td Naming Helper
-			tr
-				td Enable Naming Helper
-				td
-					.check.box(name="NamingHelper.Enabled")
-			tr
-				td Key combo
-				td.keycombo Right-Ctrl
-			tr
-				td Select text before (
-					span.keycombo Ctrl+A
-					| )
-				td
-					.check.box(name="NamingHelper.SelectAll")
-			tr
-				td Text before
-				td
-					textarea(name="NamingHelper.Pre")
-			tr
-				td Current index
-				td
-					input.long(name="NamingHelper.Index")
-			tr
-				td Text after
-				td
-					textarea(name="NamingHelper.Post")
-			tr
-				td Press
-					span.keycombo Return
-					| #{" "} afterwards
-				td
-					.check.box(name="NamingHelper.Enabled")
-	#technical
-		table
-			tr
-				td Quick-Emoji Timeout 
-					sub(title=
-					"When you want to write multiple Emojis you have to write the full HotString for the first,\n"+
-					"but after that you can just write the last letter of any Emoji-HotString to write the Emoji.\n"+
-					"Here you can specify the Timeout in ms for this action") 🛈
-				td
-					input.int(name="EmojiTimeout")
-			tr
-				td Miracast fix
-					sub(title="Fix Miracast changing Keyboard Repeat delay") 🛈
-				td
-					.check.box(name="Technical.MiracastFix")
-	//TODO add info about Advanced Actions ("Send" Class)
-	textarea#test
+					textarea(name="Internal.Unicode.A")
+					textarea(name="Internal.Unicode.B")
+	#hotstrings
+	#test
+		textarea
+		div
+			| Length: 0

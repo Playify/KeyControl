@@ -1,343 +1,407 @@
 //region Dark Mode
 // noinspection JSUnusedGlobalSymbols
-function setDarkMode(b: boolean){
-	localStorage?.setItem("dark",""+b);
-	if(b) document.documentElement.classList.add("dark");
-	else document.documentElement.classList.remove("dark");
-	return true;
+function setDarkMode(b:boolean){
+	localStorage&&localStorage.setItem("dark",""+b);
+	document.documentElement.classList[b?"add":"remove"]("dark");
 }
 
 {
-	let wantsDark: boolean;
-	const storageDark=localStorage?.getItem("dark");
-	if(storageDark=="true"||storageDark=="false") wantsDark=storageDark=="true";
-	else wantsDark=window.matchMedia('(prefers-color-scheme: dark)').matches;
-
-	//don't add event listener, because C# Form also doesn't respond to changes
-
-	if(wantsDark) document.documentElement.classList.add("dark");
-	else document.documentElement.classList.remove("dark");
+	const storageDark=localStorage&&localStorage.getItem("dark");
+	let wantsDark=storageDark=="true"||storageDark=="false"?storageDark=="true":window.matchMedia('(prefers-color-scheme: dark)').matches;
+	document.documentElement.classList[wantsDark?"add":"remove"]("dark");
 }
+
 //endregion
-
-//region External
-interface Sender{
-	Send(s: string): void;
-}
 
 interface OwnExternal{
-	Hash: string;
+	Hash:string;
+	Available:boolean;
 
-	Log(s: string): void;
+	Log(d:any):void;
 
-	Close();
+	Init(d:(s:string)=>void):void;
 
-	Init(recv: (s: string)=>void): Sender;
+	send(s:string):void;
 }
 
+//@ts-ignore
 // noinspection JSDeprecatedSymbols
-const ownExternal: OwnExternal=(<any>external)?.Available?<any>external: null;
-//endregion
+const windowExternal=(window as any)["external"];
+let ownExternal:OwnExternal | null=windowExternal&&windowExternal.Available?windowExternal:null;
 
 
-//region Hash
-function initNavigation(){
-	if(!ownExternal) return;
-	const as: NodeListOf<HTMLAnchorElement>=document.querySelectorAll("nav>a");
-	for(let i=0; i<as.length; i++){
-		const a=as[i];
-		//remove href to avoid creation of history
-		const href=a.getAttribute("href");/*
-		a.removeAttribute("href");
-		a.tabIndex=0;*/
+//region send&receive
+const pending:string[]=[];
+let ws:WebSocket;
 
-		a.onclick=e=>{
-			ownExternal.Hash=href;
-			e.preventDefault();
+send(null);
 
-			onHashChange();
-		}
-	}
-}
 
-function onHashChange(){
-	const defaultHash="#hotkeys";
-	const hash=ownExternal?.Hash??document.location.hash;
-	const sections=document.querySelectorAll("main>*");
-	let found=hash==defaultHash;
-	for(let i=0; i<sections.length; i++){
-		const section=sections[i];
-		const b=("#"+section.id)==hash;
-		if(b) section.classList.add("active");
-		else section.classList.remove("active");
-		if(b) found=true;
-	}
-	if(!found){
-		if(ownExternal) ownExternal.Hash=defaultHash;
-		else document.location.hash=defaultHash;
-		onHashChange();
-		return;
-	}
-	const as: NodeListOf<HTMLAnchorElement>=document.querySelectorAll("nav>a");
-	for(let i=0; i<as.length; i++){
-		const a=as.item(i);
-		if(a.getAttribute("href")==hash) a.classList.add("active");
-		else a.classList.remove("active");
-	}
-}
+function send(data:any | null):void{
+	if(data!=null) pending.push(typeof data=="string"?data:JSON.stringify(data));
 
-window.onhashchange=onHashChange;
-
-//endregion
-
-function testInfo(){
-	const testA=document.querySelector("nav>a[href=\"#test\"] sub");
-	const test=<HTMLTextAreaElement>document.getElementById("test");
-	test.focus();
-
-	const content=test.value;
-
-	//replace surrogate pairs with single char
-	const contentLength=content.replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g,'_').length;
-
-	const text=
-		`Length: ${contentLength} (UTF-16: ${content.length})\n`+
-		`Lines: ${content.split(/\r\n|\r|\n/).length}`;
-
-	testA.setAttribute("title",text);
-}
-
-//region WebSocket
-let loaded=false;
-
-const pending: string[]=[];
-let ws=null;
-let _send: Sender;
-if(ownExternal) _send=ownExternal.Init(receive);
-else send(null);
-
-function send(s: string): void{
-	if(s!=null&&_send!=null){
-		_send.Send(s);
-		return;
-	}
-	if(s!=null) pending.push(s);
-
-	if(ws&&ws.readyState==WebSocket.OPEN){
+	if(ws&&(ws==ownExternal as any||ws.readyState==WebSocket.OPEN)){
 		if(!pending.length) return;
-		s=pending.shift();
-
-		ws.send(s);
+		ws.send(pending.shift()!);
 		setTimeout(send,0);
 	}else if(!ws||ws.readyState==WebSocket.CLOSING||ws.readyState==WebSocket.CLOSED){
-		/*let url=document.URL;
-		url="ws"+url.substring(4);
-		const i=url.indexOf('#');
-		if(i!= -1) url=url.substring(0,i);
-		const i2=url.indexOf('?');
-		if(i2!= -1) url=url.substring(0,i2);
-		ws=new WebSocket(""+url);//*/
+		if(ownExternal){
+			ws=ownExternal as any;
+			ownExternal.Init(s=>receive(JSON.parse(s)));
+			setTimeout(send,0);
+			return;
+		}
 
-		const url="ws"+new URL(document.URL).origin.substring(4);
+		const url="ws"+document.location.origin.substring(4);
 		ws=new WebSocket(url);
 		ws.onclose=function(){
 			ws.close();
 			setTimeout(send,100);
 		};
 		ws.onerror=function(){
-			ownExternal?.Log("Error connecting to Websocket: "+url);
 			ws.close();
 			setTimeout(send,100);
 		};
-		ws.onmessage=receive;
+		ws.onmessage=function(e){
+			receive(JSON.parse(e.data));
+		};
 		ws.onopen=function(){
 			setTimeout(send,0);
 		};
 	}
 }
 
-function receive(e: MessageEvent | string): void{
-	const s: string=typeof e=="string"?e: e.data;
-	if(typeof s!=="string"){
-		console.error("Error reading WebSocket Data: ",s);
-		return;
-	}
-	console.log("RECV:"+s);
-	const indexOf=s.indexOf('=');
-	const key=s.substring(0,indexOf);
-	const valueStr=s.substring(indexOf+1);
-	const value=JSON.parse(valueStr);
+function receive(json:any){
+	if(Array.isArray(json)){
+		const value=json.pop();
 
-	if(key=="Random"){
-		randomID=value;
-	}else if(key=="hotString"){
-		HotString.update(value);
-	}else if(key=="hotStringBlock"){
-		HotString.updateBlocked(value);
-	}else if(key.indexOf("err:")==0){
-		const elements=document.getElementsByName(key.substring(4));
-		for(let i=0; i<elements.length; i++){
-			const element=<HTMLInputElement>elements[i];
-			element.classList.add("error");
-			element.title=value;
-		}
-	}else{
-		const elements=document.getElementsByName(key);
-
-		const startsWith=document.querySelectorAll("[name^=\""+key+"=\"]");
-		if(elements.length==0&&startsWith.length==0){
-			console.error("Unknown Key: "+key);
+		let obj=registered;
+		for(let key of json) obj=obj&&obj[key];
+		if(!obj) json.push(value);
+		else{
+			//console.log("Received:",json,value);
+			obj(value);
 			return;
 		}
-		for(let i=0; i<startsWith.length; i++){
-			const element=<HTMLInputElement>startsWith[i];
-			const elementValue=element.getAttribute("name").substring(key.length+1);
-			if(element.type=="checkbox") element.checked=elementValue==valueStr;
-			else element.value=elementValue==valueStr?value: "";
-			updateElement(element);
+	}else{
+		//console.log("HotString:",json);
+		updateHotString(json);
+		return;
+	}
+	console.warn("Received unknown: ",json);
+}
+
+const registered:any={};
+
+function register(keys:string[],func:(value:any)=>void){
+	let obj=registered;
+	const last=keys.pop()!;
+	for(let key of keys) obj=(obj[key]||={});
+	obj[last]=func;
+}
+
+//endregion
+
+//region Navigation
+document.addEventListener("DOMContentLoaded",function initNavigation(){
+	if(ownExternal){
+		for(const a of document.querySelectorAll("nav>a") as any as HTMLAnchorElement[]){
+			const href=a.getAttribute("href");
+			a.onclick=e=>{
+				ownExternal!.Hash=href!;
+				e.preventDefault();
+				onHashChange();
+			}
 		}
-		for(let i=0; i<elements.length; i++){
-			const element=<HTMLInputElement>elements[i];
-			if(element.type=="checkbox") element.checked=value;
-			else element.value=value;
-			updateElement(element);
+	}
+	onHashChange();
+});
+window.onhashchange=onHashChange;
+
+function onHashChange(){
+	const hash=ownExternal?ownExternal.Hash:document.location.hash;
+	const defaultHash="#windows";
+	let found=hash==defaultHash;
+
+	for(const section of document.querySelectorAll("main>*") as any as HTMLElement[])
+		if(("#"+section.id)==hash){
+			section.classList.add("active");
+			found=true;
+		}else section.classList.remove("active");
+
+	if(!found){
+		if(ownExternal) ownExternal.Hash=defaultHash;
+		else document.location.hash=defaultHash;
+		return onHashChange();
+	}
+
+	for(const a of document.querySelectorAll("nav>a") as any as HTMLAnchorElement[])
+		if(a.getAttribute("href")==hash) a.classList.add("active");
+		else a.classList.remove("active");
+}
+
+//endregion
+
+//region CheckBoxes
+document.addEventListener("DOMContentLoaded",function initCheckboxes(){
+	for(const checkbox of document.querySelectorAll(".checkbox") as any as HTMLElement[])
+		setupCheckbox(checkbox);
+});
+
+function setupCheckbox(checkbox:HTMLElement):void;
+function setupCheckbox(checkbox:HTMLElement,onToggle:(b:boolean)=>void):void;
+function setupCheckbox(checkbox:HTMLElement,onToggle:()=>void,asButton:true):void;
+function setupCheckbox(checkbox:HTMLElement,onToggle?:(b:boolean)=>void,asButton:boolean=false):void{
+	checkbox.tabIndex=0;
+
+	checkbox.addEventListener("click",()=>{
+		checkbox.focus();
+		toggle();
+	});
+	checkbox.addEventListener("keypress",e=>{
+		if([" ","Space","Spacebar"].indexOf(e.key)== -1) return;
+		e.preventDefault();
+		toggle();
+	});
+	const name=checkbox.getAttribute("name");
+	if(name) register(name.split('.'),b=>{
+		checkbox.classList[b?"add":"remove"]("checked");
+		onToggle&&onToggle(b);
+	});
+
+	function toggle(){
+		if(name){
+			const keys:any[]=name.split('.');
+			keys.push(!checkbox.classList.contains("checked"));
+			send(JSON.stringify(keys));
+		}else if(asButton){
+			onToggle&&onToggle(false);
+		}else{
+			const b=checkbox.classList.toggle("checked");
+			onToggle&&onToggle(b);
 		}
 	}
 }
 
 //endregion
 
-document.addEventListener("DOMContentLoaded",function(){
-	initNavigation();
+//region KeyCombos
+document.addEventListener("DOMContentLoaded",function initKeyCombos(){
+	for(const element of document.querySelectorAll(".keycombo") as any as HTMLElement[]){
+
+		const fragment=document.createDocumentFragment();
+		let first=true;
+		for(let combo of element.textContent!.split(/ *\| */)){
+			if(first) first=false;
+			else fragment.appendChild(document.createTextNode(" | "));
+
+			for(let key of combo.split(/ *\+ */)){
+
+				const keyElement=document.createElement("span");
+				keyElement.classList.add("key");
+				keyElement.textContent=key;
+				fragment.appendChild(keyElement);
+			}
+		}
+		while(element.firstChild) element.removeChild(element.lastChild!);
+		element.appendChild(fragment);
+	}
+});
+//endregion
+
+//region RotateWASD
+document.addEventListener("DOMContentLoaded",()=>{
+	const button=document.getElementById("rotateWasd")!;
+	button.onclick=()=>send(["Games","Wasd",0]);
+
+	for(let checkbox of (document.querySelectorAll(".rotateWasd .box") as any as HTMLElement[])){
+		setupCheckbox(checkbox,()=>{
+			send(["Games","Wasd",+checkbox.getAttribute("value")!])
+		},true);
+	}
+
+	register(["Games","Wasd"],i=>{
+		for(let checked of document.querySelectorAll(".rotateWasd .checked") as any as HTMLElement[])
+			checked.classList.remove("checked");
+		document.querySelector(".rotateWasd .box[value='"+i+"']")!.classList.add("checked");
+		button.style.visibility=i==0?"hidden":"visible";
+	});
+});
+//endregion
+
+//region TextBoxes
+document.addEventListener("DOMContentLoaded",()=>{
+
+	//Textarea autoheight
+	for(let textarea of (document.querySelectorAll("textarea") as any as HTMLTextAreaElement[]))
+		initTextArea(textarea);
+
+	for(let input of (document.querySelectorAll("input[name],textarea[name]") as any as (HTMLInputElement | HTMLTextAreaElement)[])){
+		let systemValue:string | null=null;//If never received a value, then don't override on blur
+
+		register(input.getAttribute("name")!.split('.'),v=>{
+			systemValue=input.classList.contains("color")?(v as number).toString(16).toUpperCase():v.toString();
+
+			if(document.activeElement==input) return;//Don't override while focused
+
+			input.value=systemValue!;
+			// @ts-ignore
+			if("autoSize" in input) input.autoSize();
+		});
+		const sendValue=(v:any)=>{
+			const keys=input.getAttribute("name")!.split('.');
+			keys.push(v);
+			send(keys);
+		}
+		const inputFunction=function(){
+			{//Restrict letters using regex
+				let value=input.value;
+				let start=input.selectionStart!;
+				let end=input.selectionEnd!;
+				let direction=input.selectionDirection!;
+				value=value.substring(0,start)+'\0'+value.substring(start,end)+'\0'+value.substring(end);
+
+				if(input.classList.contains("color"))
+					value=value.toUpperCase().replace(/[^0-9A-F\x00]/,'');
+				else if(input.classList.contains("int")){
+					value=value.replace(/[^0-9\x00-]/,'');
+					const m=value.match(/^(\x00*-?)(.*)/)!;
+					value=m[1]+m[2].replace(/-/g,"");
+				}
 
 
-	document.getElementById("test").oninput=testInfo;
-	testInfo();
-
-	loaded=true;
-
-	const checkboxes=document.querySelectorAll(".check.box,.box[name*=\"=\"]");
-	for(let i=0; i<checkboxes.length; i++)
-		setupCheckbox(<HTMLInputElement>checkboxes[i]);
-
-	onHashChange();
-
-	initKeyCombos();
-
-	initChangeListener();
+				start=value.indexOf('\0');
+				end=value.lastIndexOf('\0')-1;
+				input.value=value.replace(/\x00/g,'');
+				if(document.activeElement==input)
+					input.setSelectionRange(start,end,direction);
+			}
 
 
-	Category.master;//enforce loading of Master
+			let error=false;
+			if(input.classList.contains("color")){
+				if(/^[0-9A-Fa-f]{1,8}$/.test(input.value)) sendValue(parseInt(input.value,16));
+				else error=true;
+			}else if(input.classList.contains("int")){
+				if(/^-?[0-9]+$/.test(input.value)){
+					const number=+input.value;
+					const min=+(input.getAttribute("min")|| -0x7FFFFFFF);
+					const max=+(input.getAttribute("max")||0x7FFFFFFF);
+					if(number>=min&&number<=max) sendValue(number);
+					else error=true;
+				}else error=true;
+			}else{
+				sendValue(input.value);
+			}
+
+			input.classList[error?"add":"remove"]("error");
+		};
+		input.addEventListener("input",inputFunction);
+		input.addEventListener("blur",()=>{
+			inputFunction();
+			if(systemValue!=null&&input.value!=systemValue)
+				input.value=systemValue;
+			input.classList.remove("error");
+			// @ts-ignore
+			if("autoSize" in input) input.autoSize();
+		});
+	}
 });
 
-//region Rainbow
-{
-	let curr="";
-	const konami="uuddlrlrba";
-	document.addEventListener("keydown",function(e){
-		let k: string;
-		switch(e.key){
-			case "F5":
-				if(ownExternal!=null) e.preventDefault();//Inbuilt Browser can't refresh correctly, page would become white inside KeyControl window
-				return;
-			case "Escape":
-			case "Esc":
-				ownExternal?.Close();
-				return;
-			case "Up":
-				k="u";
-				break;
-			case "Down":
-				k="d";
-				break;
-			case "Left":
-				k="l";
-				break;
-			case "Right":
-				k="r";
-				break;
-			case "ArrowUp":
-				k="u";
-				break;
-			case "ArrowDown":
-				k="d";
-				break;
-			case "ArrowLeft":
-				k="l";
-				break;
-			case "ArrowRight":
-				k="r";
-				break;
-			case "a":
-			case "A":
-				k="a";
-				break;
-			case "b":
-			case "B":
-				k="b";
-				break;//handled by other
-			default:
-				k="";
-				break;
-		}
-		if(!k) curr="";
-		curr+=k;
-		if(curr.length>konami.length) curr=curr.substring(curr.length-konami.length);
-		if(curr==konami) document.documentElement.classList.toggle("rainbow");
-	});
+function initTextArea(textarea:HTMLTextAreaElement){
+	if(textarea.parentElement!.id=="test") return;
+
+	function autoSize(){
+		textarea.rows=1;
+		const parent=textarea.parentElement!;
+		const preStyle=parent.getAttribute("style");
+		parent.style.height=parent.clientHeight+"px";
+		textarea.style.height="auto";
+		textarea.style.height=textarea.scrollHeight+"px";
+		if(preStyle) parent.setAttribute("style",preStyle);
+		else parent.removeAttribute("style");
+	}
+
+	textarea.addEventListener("input",autoSize);
+	// @ts-ignore
+	textarea.autoSize=autoSize;
+	autoSize();
 }
+
 //endregion
 
 //region HotStrings
+const map:HotString[]=[];
+const blocked:HotString[]=[];
+let root:HotStringCategory;
+document.addEventListener("DOMContentLoaded",()=>{
+	root=new HotStringCategory(null,null);
+	register(["HotStrings","List"],j=>{
+		for(let i=root.childs.length-1; i>=0; i--) root.childs[i].destroy(true);
+		for(let child of j) root.addChild(getHotString(root,child));
+	});
+	register(["Internal","HotStrings","Block"],j=>{
+		for(let hotString of blocked) hotString.div.classList.remove("blocked");
+		blocked.length=0;
+		for(let i of j){
+			const hotString=getHotString(null,i);
+			blocked.push(hotString);
+			hotString.div.classList.add("blocked");
+		}
+	});
+});
 
-let randomID=Math.floor(Math.random()*(-1>>>0));//Number.MAX_SAFE_INTEGER
+function getHotString(parent:HotStringCategory | null,child:any):HotString{
+	if(typeof child=="number") return map[child];
+	if("Category" in child) return new HotStringCategory(parent,child);
+	if("Emoji" in child) return new HotStringEmoji(parent,child);
+	if("Regex" in child) return new HotStringRegex(parent,child);
+	return new HotStringReplace(parent,child);
+}
 
-
-function getRandomId(){
-	while(HotString.IdMap[++randomID]){
-	}
-	return randomID;
+function updateHotString(value:any):HotString{
+	const hotString=map[value.Id];
+	if(!hotString) return getHotString(null,value);
+	hotString.loadJson(value);
+	return hotString;
 }
 
 
-type HotStringInserter=(hs: HotString | Category)=>void;
-
-function makeDraggable(hs: HotString){
+function makeDragable(hs:HotString){
 	const element=hs.div;
 	element.classList.add("drag");
 
-	function reposition(e: MouseEvent): void{
+	function reposition(e:MouseEvent):void{
 		const posY=e.clientY;
 		let nearest=Infinity;
-		let inserter: HotStringInserter=null;
+		let inserter:(null | ((hs:HotString)=>void))=null;
 
-		Category.master.forEach(hs,(y,func/*,currHs,el,pos*/)=>{
+		root.forEach(hs,(y,ins)=>{
 			y=Math.abs(posY-y);
 			if(y<nearest){
 				nearest=y;
-				inserter=func;
+				inserter=ins;
 			}
 		});
 
 		//nearest element is itself. it's easier to check for null than to check inserter variable
 		if(inserter==null) return;
 
-		const prevParent=hs.parent;
+		const prevParent=hs.parent!;
 		const prevChilds=prevParent.childs.slice();
-		inserter(hs);
+		(inserter as any)(hs);
 		if(hs.parent!=prevParent){
-			hs.parent.send();
-			prevParent.send();
+			hs.parent!.send();
 			return;
 		}
-		const afterChilds=hs.parent.childs;
+		const afterChilds=hs.parent!.childs;
 		if(prevChilds.length!=afterChilds.length){
-			hs.parent.send();
+			hs.parent!.send();
 			return;
 		}
 		for(let i=0; i<afterChilds.length; i++)
 			if(prevChilds[i]!=afterChilds[i]){
-				hs.parent.send();
+				hs.parent!.send();
 				return;
 			}
 	}
@@ -348,19 +412,16 @@ function makeDraggable(hs: HotString){
 		e.stopPropagation();
 		reposition(e);
 		//element.focus();
-		(<HTMLElement>document.activeElement)?.blur?.();
+		(document.activeElement as HTMLElement)?.blur?.();
 		element.classList.add("dragging");
 
-		function onMouseMove(e){
-			reposition(e);
-		}
 
-		document.addEventListener("mousemove",onMouseMove);
+		document.addEventListener("mousemove",reposition);
 
-		function onMouseUp(e){
+		function onMouseUp(e:MouseEvent){
 			reposition(e);
 			element.classList.remove("dragging");
-			document.removeEventListener("mousemove",onMouseMove);
+			document.removeEventListener("mousemove",reposition);
 			document.removeEventListener("mouseup",onMouseUp);
 		}
 
@@ -368,462 +429,319 @@ function makeDraggable(hs: HotString){
 	});
 }
 
-interface HotStringBase{
-	Id?: number,
-	Error?: string,
-	Enabled?: boolean,
-	Collapsed?: boolean,
-}
-
 abstract class HotString{
-	public static IdMap: HotString[]=[];
-	public static Blocked: HotString[]=[];
-	public readonly id: number;
-	public parent: Category=null;
-	public readonly div: HTMLDivElement;
-	public readonly addBefore: HotStringInserter;
-	protected readonly titleText: HTMLInputElement;
-	private readonly _collapsed: HTMLInputElement;
-	private readonly _enabled: HTMLInputElement;
-	private readonly errorBox: HTMLElement;
-	private readonly options: [HTMLInputElement,(json: any)=>(string | boolean)][]=[];
+	public readonly id:number;
+	public parent:HotStringCategory | null=null;
+	public readonly div:HTMLDivElement;
+	public readonly titleText:HTMLInputElement | HTMLSpanElement;
+	private readonly options:[HTMLElement,(json:any)=>(string | boolean)][]=[];
+	private readonly errorBox:HTMLElement;
 
-	protected constructor(parent: Category,data: any){
+	protected constructor(parent:HotStringCategory | null,data:any){
 		if(data==null){
 			this.id=0;
-			this.div=document.querySelector("#hotstrings");
+			this.div=document.querySelector<HTMLDivElement>("#hotstrings")!;
 			return;
 		}
 		this.id=data.Id;
-		HotString.IdMap[this.id]=this;
-		this.div=document.createElement("div");
+		map[this.id]=this;
 		const isCategory="Category" in data;
-		this.div.classList.add(isCategory?"category": "hotstringContainer");
-		makeDraggable(this);
-		{
+
+		this.div=document.createElement("div");
+		this.div.classList.add(isCategory?"category":"hotstringContainer");
+
+		makeDragable(this);
+
+		{//Titlebar
 			const title=document.createElement("div");
-			this.div.appendChild(title);
-			title.classList.add("title");
+			this.div.appendChild(title).classList.add("title");
 
-			this._collapsed=<HTMLInputElement>document.createElement("div");
-			title.appendChild(this._collapsed);
-			this._collapsed.classList.add("collapsed");
-			setupCheckbox(this._collapsed,this.div,"collapsed");
-			this._collapsed.addEventListener("input",()=>{
-				//(<HTMLElement>document.activeElement)?.blur?.();
+
+			const collapsed=document.createElement("div");
+			collapsed.classList.add("collapsed");
+			collapsed.classList.add("box");
+			setupCheckbox(collapsed,()=>{
+				this.div.classList.toggle("collapsed");
 				this.send();
-			});
-			this._collapsed.checked=data.Collapsed;
+			},true);
+			if(data.Collapsed!=false) this.div.classList.add("collapsed");
+			title.appendChild(collapsed);
 
-			this._enabled=<HTMLInputElement>document.createElement("div");
-			title.appendChild(this._enabled);
-			this._enabled.classList.add("enabled");
-			setupCheckbox(this._enabled,this.div,"enabled");
-			this._enabled.addEventListener("input",()=>{
+
+			const enabled=document.createElement("div");
+			enabled.classList.add("enabled");
+			enabled.classList.add("box");
+			setupCheckbox(enabled,()=>{
+				this.div.classList.toggle("enabled");
 				this.send();
-			});
-			this._enabled.checked=data.Enabled!=false;
-			//if(data.Enabled==false) this.div.classList.add("enabled");
+			},true);
+			if(data.Enabled!=false) this.div.classList.add("enabled");
+			title.appendChild(enabled);
 
-			this.errorBox=document.createElement("abbr");
-			title.appendChild(this.errorBox);
-			this.errorBox.textContent="[ERROR]";
+			title.appendChild(this.errorBox=document.createElement("abbr")).textContent="[ERROR]";
 
-			this.titleText=<HTMLInputElement>document.createElement(isCategory?"input": "span");
+
+			this.titleText=document.createElement(isCategory?"input":"span");
 			title.appendChild(this.titleText);
+
 			if(!isCategory){
-				const type=document.createElement("span");
-				this.titleText.appendChild(type);
-				type.classList.add("type");
-
-				const doubleDot=document.createTextNode(": ");
-				this.titleText.appendChild(doubleDot);
-
-				const hotstring=document.createElement("span");
-				this.titleText.appendChild(hotstring);
-				hotstring.classList.add("hotstring");
-
-				const arrow=document.createTextNode(" ⇒ ");
-				this.titleText.appendChild(arrow);
-
-				const replacement=document.createElement("span");
-				this.titleText.appendChild(replacement);
-				replacement.classList.add("replacement");
+				this.titleText.appendChild(document.createElement("span"));//Type
+				this.titleText.appendChild(document.createTextNode(": "));
+				const from=this.titleText.appendChild(document.createElement("span"));
+				from.classList.add("hotstring");
+				from.classList.add("from");
+				this.titleText.appendChild(document.createTextNode(" ⇒ "));
+				const to=this.titleText.appendChild(document.createElement("span"));
+				to.classList.add("hotstring");
+				to.classList.add("to");
 			}
 
-
-			const destroyer=document.createElement("div");
-			title.appendChild(destroyer);
-			destroyer.classList.add("delete");
-			destroyer.classList.add("box");
-			destroyer.addEventListener("click",()=>{
-				if(!destroyer.classList.contains("r_u_sure")){
-					destroyer.classList.add("r_u_sure");
-					setTimeout(()=>destroyer.classList.remove("r_u_sure"),1000);
-					return;
-				}
-				const p=this.parent;
-				this.destroy();
-				p.send();
-				this.send();
-			});
 			const trash=document.createElement("div");
 			trash.classList.add("trash");
-			destroyer.appendChild(trash);
-		}
-
-		parent?.addChild(this);
-
-		this.addBefore=hs=>{
-			hs.destroy();
-			const i=this.parent.childs.indexOf(this);
-			if(i== -1) console.error("HotString is not child of parent");
-			else this.parent.childs.splice(i,0,hs);
-			hs.parent=this.parent;
-			this.parent.div.insertBefore(hs.div,this.div);
-		}
-	}
-
-	public static update(value: any){
-		if(typeof value=="number"){
-			this.IdMap[value]?.destroy();
-			delete this.IdMap[value];
-			return;
-		}
-		if(Array.isArray(value)){
-			Category.master.loadJson(value);
-			return;
-		}
-		const id=value.Id;
-		const old=this.IdMap[id];
-		if(old) old.loadJson(value);
-		else this.get(null,value);
-	}
-
-	public static updateBlocked(value: number[]){
-		for(let hotString of this.Blocked) hotString.div.classList.remove("blocked");
-		this.Blocked=[];
-
-		for(let number of value){
-			const hotString=this.get(null,number);
-			hotString.div.classList.add("blocked");
-			this.Blocked.push(hotString);
-		}
-	}
-
-	static get(parent: Category,child: any): HotString{
-		if(typeof child=="number") return this.IdMap[child];
-		if("Category" in child) return new Category(parent,child);
-		if("Emoji" in child) return new HotStringEmoji(parent,child);
-		if("Regex" in child) return new HotStringRegex(parent,child);
-		/*const from=<string>child.From;
-		const to=<string>child.To;
-		if(typeof from!=="string") throw new Error("From is null");
-		if(typeof to!=="string") throw new Error("To is null");
-		if(from.length!=to.length) return new HotStringReplace(parent,child);
-		if(child.keepCase!=false) return new HotStringKeepCase(parent,child);*/
-		return new HotStringReplace(parent,child);
-	}
-
-	addOption(func: (json: any)=>(string | boolean),name: string,sub?: string){
-		const row=document.createElement("tr");
-		this.div.appendChild(row);
-
-		const nameElement=document.createElement("td");
-		row.appendChild(nameElement);
-		nameElement.textContent=name;
-		if(sub){
-			const subElement=document.createElement("sub");
-			subElement.textContent=sub;
-			nameElement.appendChild(subElement);
-		}
-
-		const inputContainer=document.createElement("td");
-		row.appendChild(inputContainer);
-		let input: HTMLInputElement;
-		//checks type with empty object. If this control should be a checkbox a boolean is returned otherwise any gibberish means text
-		if(typeof (func({}))==="boolean"){
-			input=<HTMLInputElement>document.createElement("div");
-			setupCheckbox(input);
-		}else{
-			input=document.createElement("input");
-			input.addEventListener("blur",()=>{
-				send("hotStringBlock="+0);
+			trash.classList.add("box");
+			setupCheckbox(trash,b=>{
+				if(b) setTimeout(()=>trash.classList.remove("checked"),1000);
+				else{
+					const parent=this.parent;
+					this.destroy(true);
+					parent&&parent.send();
+					this.send();
+				}
 			});
-			input.addEventListener("focus",()=>{
-				send("hotStringBlock="+this.id);
-			});
+
+			trash.appendChild(document.createElement("div"));
+			title.appendChild(trash);
 		}
-		input.addEventListener("input",()=>{
-			this.updateControls();
-			this.send()
-		});
 
-		inputContainer.appendChild(input);
-
-		this.options.push([input,func]);
-		return input;
+		if(parent) parent.addChild(this);
 	}
 
-	forEach(hs: HotString,func: (y: number,func: HotStringInserter,currHs: HotString,el: Element,type: string)=>void): void{
-		if(this==hs) func(this.div.getBoundingClientRect().top,null,this,this.div,"self hs");
-		else func(this.div.getBoundingClientRect().top,this.addBefore,this,this.div,"before");
+	forEach(hs:HotString,func:(y:number,inserter:null | ((hs:HotString)=>void))=>void){
+		func(this.div.getBoundingClientRect().top,this==hs?null:this.addBefore.bind(this));
 	}
 
-	destroy(removeHtml: boolean=true): void{
+	addBefore(hs:HotString){
+		hs.destroy(false);
+		if(!this.parent) return;
+		const i=this.parent.childs.indexOf(this);
+		if(i!= -1) this.parent.childs.splice(i,0,hs);
+		hs.parent=this.parent;
+		this.parent.div.insertBefore(hs.div,this.div);
+	}
+
+	destroy(removeHtml:boolean){
 		if(this.parent==null) return;
 		const i=this.parent.childs.indexOf(this);
-		if(i== -1) console.error("HotString is not child of parent");
-		else this.parent.childs.splice(i,1);
+		if(i!= -1) this.parent.childs.splice(i,1);
 
-		if(removeHtml) this.div.parentElement.removeChild(this.div);
+		if(removeHtml) this.div.parentElement?.removeChild(this.div);
 		this.parent=null;
 	}
 
-	abstract toJson(): object;
+	send(){
+		this.updateControls();
+		if(this.parent==null){
+			const id=this.id;
+			delete map[id];
+			send(id);
+		}else{
+			const json:any=this.toJson();
+			json.Enabled=this.div.classList.contains("enabled")&&undefined;
+			json.Collapsed=this.div.classList.contains("collapsed")&&undefined;
+			json.Id=this.id;
 
-	toFullJson(): object{
-		const o: any=this.toJson();
-		o.Enabled=(this.div.classList.contains("enabled"))&&undefined;
-		o.Collapsed=this.div.classList.contains("collapsed")||undefined;
-		o.Error=this.errorBox.title||undefined;
-		o.Id=this.id;
-		return o;
+			send(json);
+		}
 	}
 
-	loadJson(json: HotStringBase){
+	loadJson(json:any){
 		for(let [input,func] of this.options){
 			const value=func(json);
-			if(typeof value=="boolean") input.checked=value;
-			else input.value=value||"";
+			if(typeof value=="boolean") input.classList[value?"add":"remove"]("checked");
+			else (input as HTMLInputElement).value=value||"";
 		}
+		this.div.classList[json.Enabled!=false?"add":"remove"]("enabled");
+		this.div.classList[json.Collapsed!=false?"add":"remove"]("collapsed");
 
 		if(this.errorBox){
 			if(json.Error) this.errorBox.title=json.Error;
 			else this.errorBox.removeAttribute("title");
-
-			this._enabled.checked=json.Enabled!=false;
-			//else this.div.classList.remove("disabled");
-			if(json.Collapsed) this.div.classList.add("collapsed");
-			else this.div.classList.remove("collapsed");
 		}
 
 		this.updateControls();
 	}
 
-	send(): void{
-		this.updateControls();
-		let value: any;
-		if(this.parent==null){
-			value=this.id;
-			delete HotString.IdMap[this.id];
-		}else value=this.toFullJson();
 
-		send("hotString="+JSON.stringify(value));
+	abstract toJson():object;
+
+	abstract getFromTo():[string,string,string];
+
+	protected updateControls(){
+		const arr=this.getFromTo();
+		this.titleText.children[0].textContent=arr[0];
+		this.titleText.querySelector(".from")!.textContent=arr[1];
+		this.titleText.querySelector(".to")!.textContent=arr[2];
 	}
 
-	abstract getFromTo(): [string,string,string];
+	protected addOption(func:(json:any)=>string,name:string,sub?:string):HTMLInputElement;
+	protected addOption(func:(json:any)=>boolean,name:string,sub?:string):HTMLDivElement;
+	protected addOption(func:(json:any)=>(string | boolean),name:string,sub?:string):HTMLElement{
+		const row=this.div.appendChild(document.createElement("tr"));
 
-	protected updateControls(): void{
-		const [type,from,to]=this.getFromTo();
-		this.titleText.querySelector(".type").textContent=type;
-		this.titleText.querySelector(".hotstring").textContent=from;
-		this.titleText.querySelector(".replacement").textContent=to;
-	}
-}
+		const nameEleemnt=row.appendChild(document.createElement("td"));
+		nameEleemnt.textContent=name;
+		if(sub) nameEleemnt.appendChild(document.createElement("sub")).textContent=sub;
 
-interface CategoryData extends HotStringBase{
-	Category: string;
-	Children?: any[];
-}
-
-class Category extends HotString{
-	public readonly div: HTMLDivElement;
-	public readonly addChild: HotStringInserter;
-	public readonly addBefore: HotStringInserter;
-	public readonly childs: HotString[]=[];
-	private readonly createNew: HTMLDivElement;
-
-	constructor(parent: Category,data: CategoryData){
-		super(parent,data);
-		if(data==null){
-			this.addBefore=hs=>{
-				console.log("can't add HotString before Master: ",hs)
-			};
-			const thiz=this;
-			Object.defineProperty(this.div,"value",{
-				get(): any{
-					thiz.toJsonArray();
-				},
-				set(v: any): void{
-					thiz.loadJson(v);
-				}
-			});
-		}else{
-			this.titleText.value=data.Category;
-			this.titleText.addEventListener("input",()=>{
+		let input:HTMLElement;
+		if(typeof (func({}))=="boolean"){
+			input=document.createElement("div");
+			input.classList.add("checkbox");
+			setupCheckbox(input,()=>{
+				this.updateControls();
 				this.send();
 			});
+		}else{
+			input=document.createElement("input");
+			input.addEventListener("blur",()=>send(["Internal","HotStrings","Block",0]));
+			input.addEventListener("focus",()=>send(["Internal","HotStrings","Block",this.id]));
 
-			this.addBefore=hs=>{
-				hs.destroy(false);
-				const i=this.parent.childs.indexOf(this);
-				if(i== -1) console.error("Category is not child of parent");
-				else this.parent.childs.splice(i,0,hs);
-				hs.parent=this.parent;
-				this.parent.div.insertBefore(hs.div,this.div);
-			}
+			input.addEventListener("input",()=>{
+				this.updateControls();
+				this.send();
+			});
+		}
+		row.appendChild(document.createElement("td")).appendChild(input);
+		this.options.push([input,func]);
+
+		return input;
+	}
+}
+
+class HotStringCategory extends HotString{
+	public readonly titleText:HTMLInputElement;
+	public readonly createNew:HTMLDivElement;
+	public readonly childs:HotString[]=[];
+
+	constructor(parent:HotStringCategory | null,data:any){
+		super(parent,data);
+
+		if(data==null){
+			this.addBefore=()=>{
+			};
+		}else{
+			this.titleText.value=data.Category;
+			this.titleText.addEventListener("input",()=>this.send());//TODO maybe fix: will be overridden even when focused
 		}
 
-		this.createNew=document.createElement("div");
-		this.div.appendChild(this.createNew);
-		this.createNew.classList.add("addNew");
+		for(let child of ((data&&data.Children)||[]))
+			this.addChild(getHotString(this,child));
 
-		const addOption=(name: string,create: ()=>(HotString | Category))=>{
-			const div=document.createElement("div");
-			this.createNew.appendChild(div);
+		this.div.appendChild(this.createNew=document.createElement("div")).classList.add("createNew");
+
+		const addOption=(name:string,create:()=>HotString)=>{
+			const div=this.createNew.appendChild(document.createElement("div"));
 			div.textContent=name;
 			div.addEventListener("click",()=>{
 				create().send();
 				this.send();
 			});
-		};
+		}
 
-		addOption("Category",()=>new Category(this,{
-			Id:getRandomId(),
-			Category:"Category"
+
+		addOption("Category",()=>new HotStringCategory(this,{
+			Id:Date.now(),
+			Category:"Category",
+			Collapsed:false,
 		}));
 		addOption("Emoji",()=>new HotStringEmoji(this,{
-			Id:getRandomId(),
+			Id:Date.now(),
 			From:"xdd",
-			Emoji:"😂"
+			Emoji:"😂",
+			Collapsed:false,
 		}));
 		addOption("Regex",()=>new HotStringRegex(this,{
-			Id:getRandomId(),
+			Id:Date.now(),
 			Regex:"(?<=^| )itn$",
 			Replacement:"int",
-			IgnoreCase:false
+			IgnoreCase:false,
+			Collapsed:false,
 		}));
 		addOption("Replace",()=>new HotStringReplace(this,{
-			Id:getRandomId(),
+			Id:Date.now(),
 			From:"cosnt",
 			To:"const",
-			IgnoreCase:false
+			IgnoreCase:false,
+			Collapsed:false,
 		}));
-
-
-		this.addChild=(hs: HotString)=>{
-			hs.destroy(false);
-			this.childs.push(hs);
-			hs.parent=this;
-			this.div.insertBefore(hs.div,this.createNew);
-		};
-		const childs=data?.Children;
-		if(childs!=null)
-			for(let i=0; i<childs.length; i++)
-				this.addChild(HotString.get(this,childs[i]));
 	}
 
-	private static _master: Category;
-
-	public static get master(){
-		if(this._master==null) this._master=new Category(null,null);
-		return this._master;
-	}
-
-	destroy(): void{
-		if(this.parent==null) return;
-		const i=this.parent.childs.indexOf(this);
-		if(i== -1) console.error("Category is not child of parent");
-		else this.parent.childs.splice(i,1);
-
-		//this.div.remove();
-		this.div.parentElement.removeChild(this.div);
-		this.parent=null;
-	}
-
-	forEach(hs: HotString,func: (y: number,func: HotStringInserter,currHs: HotString,el: Element,type: string)=>void): void{
+	forEach(hs:HotString,func:(y:number,inserter:(((hs:HotString)=>void) | null))=>void){
 		if(this==hs){
-			if(this.parent!=null)
-				func(this.div.getBoundingClientRect().top,null,this,this.div,"self category");
+			if(this.parent!=null) func(this.div.getBoundingClientRect().top,null);
 			return;
 		}
-		if(this.parent!=null)
-			func(this.div.getBoundingClientRect().top,this.addBefore,this,this.div,"before");
+		if(this.parent) func(this.div.getBoundingClientRect().top,this.addBefore.bind(this));
 
 		if(this.div.classList.contains("collapsed")) return;
 
 		for(let child of this.childs) child.forEach(hs,func);
 
-		func(this.createNew.getBoundingClientRect().top,this.addChild,this,this.div,"child");
+		func(this.createNew.getBoundingClientRect().top,this.addChild.bind(this));
 	}
 
-	toJson(): CategoryData | any[]{
-		return this==Category.master?this.toJsonArray(): {
-			Category:this.titleText.value,
-			Children:this.childs.length?this.toJsonArray(): undefined
-		};
+	addChild(hs:HotString){
+		hs.destroy(false);
+		this.childs.push(hs);
+		hs.parent=this;
+		this.div.insertBefore(hs.div,this.createNew);
 	}
 
-	toJsonArray(): any[]{
-		const arr=[];
-		for(let child of this.childs) arr.push(child.id);
-		return arr;
-	}
-
-	loadJson(json: any){
-		super.loadJson(json);
-		if(!Array.isArray(json)){
-			this.titleText.value=json.Category;
-			json=json.Children;
-		}
-		const arr: any[]=json?json: [];
-		for(let i=this.childs.length-1; i>=0; i--)
-			this.childs[i].destroy(arr.indexOf(this.childs[i].id)== -1);//only remove html if needed
-		for(let child of arr)
-			this.addChild(HotString.get(this,child));
-	}
-
-	send(): void{
-		let value: any;
-		if(this==Category.master) value=this.toJsonArray();
-		else if(this.parent==null){
-			delete HotString.IdMap[this.id];
-			value=this.id;
+	send(){
+		if(this.id==0) return send(["HotStrings","List",this.childs.map(c=>c.id)]);
+		if(this.parent==null){
 			//freeing children
 			for(let i=this.childs.length-1; i>=0; i--){
 				const child=this.childs[i];
-				child.destroy();
+				child.destroy(true);
 				child.send();
 			}
-		}else value=this.toFullJson();
-
-		send("hotString="+JSON.stringify(value));
+		}
+		super.send();
 	}
 
-	getFromTo(): [string,string,string]{
-		return [null,null,null];
+	loadJson(json:any){
+		super.loadJson(json);
+
+		this.titleText.value=json.Category;
+		const arr=json.Children||[];
+		for(let i=this.childs.length-1; i>=0; i--)
+			this.childs[i].destroy(arr.indexOf(this.childs[i].id)== -1);//only remove html if needed
+		for(let child of arr)
+			this.addChild(getHotString(null,child));
 	}
 
-	protected updateControls(): void{
+	toJson():object{
+		return {
+			Category:this.titleText.value,
+			Children:this.childs.map(c=>c.id),
+		};
 	}
-}
 
+	getFromTo():[string,string,string]{
+		return ["","",""];
+	}
 
-interface HotStringEmojiData extends HotStringBase{
-	From: string,
-	Emoji: string,
-	Regex?: string,
-	IgnoreCase?: boolean
+	protected updateControls(){
+	}
 }
 
 class HotStringEmoji extends HotString{
-	private readonly _from: HTMLInputElement;
-	private readonly _regex: HTMLInputElement;
-	private readonly _ignoreCase: HTMLInputElement;
-	private readonly _emoji: HTMLInputElement;
+	private readonly _from:HTMLInputElement;
+	private readonly _regex:HTMLInputElement;
+	private readonly _ignoreCase:HTMLDivElement;
+	private readonly _emoji:HTMLInputElement;
 
-	constructor(parent: Category,data: HotStringEmojiData){
+	constructor(parent:HotStringCategory | null,data:any){
 		super(parent,data);
 		this._from=this.addOption(j=>j.From,"From");
 		this._regex=this.addOption(j=>j.Regex,"Regex","(optional)");
@@ -834,32 +752,26 @@ class HotStringEmoji extends HotString{
 		this.loadJson(data);
 	}
 
-	toJson(): HotStringEmojiData{
+	toJson():any{
 		return {
 			From:this._from.value,
 			Emoji:this._emoji.value,
 			Regex:this._regex.value||undefined,//use value, but if empty string then dont send anything
-			IgnoreCase:this._ignoreCase.checked||undefined
+			IgnoreCase:this._ignoreCase.classList.contains("checked")||undefined
 		}
 	}
 
-	getFromTo(): [string,string,string]{
+	getFromTo():[string,string,string]{
 		return ["Emoji",this._from.value,this._emoji.value];
 	}
 }
 
-interface HotStringRegexData extends HotStringBase{
-	Regex: string,
-	Replacement: string,
-	IgnoreCase: boolean
-}
-
 class HotStringRegex extends HotString{
-	private readonly _replacement: HTMLInputElement;
-	private readonly _regex: HTMLInputElement;
-	private readonly _ignoreCase: HTMLInputElement;
+	private readonly _replacement:HTMLInputElement;
+	private readonly _regex:HTMLInputElement;
+	private readonly _ignoreCase:HTMLDivElement;
 
-	constructor(parent: Category,data: HotStringRegexData){
+	constructor(parent:HotStringCategory | null,data:any){
 		super(parent,data);
 		this._regex=this.addOption(j=>j.Regex,"Regex");
 		this._ignoreCase=this.addOption(j=>j.IgnoreCase==true,"IgnoreCase");
@@ -868,33 +780,26 @@ class HotStringRegex extends HotString{
 		this.loadJson(data);
 	}
 
-	toJson(): HotStringRegexData{
+	toJson():any{
 		return {
 			Regex:this._regex.value,
-			IgnoreCase:this._ignoreCase.checked,
+			IgnoreCase:this._ignoreCase.classList.contains("checked"),
 			Replacement:this._replacement.value
 		}
 	}
 
-	getFromTo(): [string,string,string]{
+	getFromTo():[string,string,string]{
 		return ["Regex",this._regex.value,this._replacement.value];
 	}
 }
 
-interface HotStringReplaceData extends HotStringBase{
-	From: string,
-	To: string,
-	IgnoreCase?: boolean,
-	KeepCase?: boolean
-}
-
 class HotStringReplace extends HotString{
-	private readonly _from: HTMLInputElement;
-	private readonly _ignoreCase: HTMLInputElement;
-	private readonly _to: HTMLInputElement;
-	private readonly _keepCase: HTMLInputElement;
+	private readonly _from:HTMLInputElement;
+	private readonly _ignoreCase:HTMLDivElement;
+	private readonly _to:HTMLInputElement;
+	private readonly _keepCase:HTMLDivElement;
 
-	constructor(parent: Category,data: HotStringReplaceData){
+	constructor(parent:HotStringCategory | null,data:any){
 		super(parent,data);
 		this._from=this.addOption(j=>j.From,"From");
 		this._ignoreCase=this.addOption(j=>j.IgnoreCase==true,"IgnoreCase");
@@ -904,220 +809,52 @@ class HotStringReplace extends HotString{
 		this.loadJson(data);
 	}
 
-	updateControls(): void{
+	updateControls():void{
 		super.updateControls();
 		if(this._from.value.length==this._to.value.length){
 			this._keepCase.removeAttribute("disabled");
 		}else{
 			this._keepCase.setAttribute("disabled","true");
-			this._keepCase.checked=false;
+			this._keepCase.classList.remove("checked");
 		}
-		if(this._keepCase.checked){
+		if(this._keepCase.classList.contains("checked")){
 			this._ignoreCase.setAttribute("disabled","true");
-			this._ignoreCase.checked=true;
+			this._keepCase.classList.add("checked");
 		}else this._ignoreCase.removeAttribute("disabled");
 	}
 
-	toJson(): HotStringReplaceData{
+	toJson():any{
 		return {
 			From:this._from.value,
-			IgnoreCase:this._ignoreCase.checked||undefined,
+			IgnoreCase:this._ignoreCase.classList.contains("checked")||undefined,
 			To:this._to.value,
-			KeepCase:this._from.value.length==this._to.value.length&& !this._keepCase.checked?false: undefined
+			KeepCase:this._from.value.length==this._to.value.length&& !this._keepCase.classList.contains("checked")?false:undefined
 		}
 	}
 
-	getFromTo(): [string,string,string]{
+	getFromTo():[string,string,string]{
 		return ["Replace",this._from.value,this._to.value];
 	}
 }
 
 //endregion
 
-//region Key Combos
-function initKeyCombos(){
-	const keycombos=document.getElementsByClassName("keycombo");
-	for(let i=0; i<keycombos.length; i++){
-		const keycombo=keycombos[i];
-		setKeyCombo(keycombo,keycombo.textContent);
-	}
-}
+//region Test Area
+document.addEventListener("DOMContentLoaded",()=>{
+	const textarea=document.querySelector<HTMLTextAreaElement>("#test>textarea")!;
+	const div=document.querySelector("#test>div")!;
+	const input=()=>{
+		const content=textarea.value;
 
-function setKeyCombo(element: Element,keycombo: string): void{
-	const fragment=document.createDocumentFragment();
-	let first=true;
-	for(let combo of keycombo.split(/ *\| */)){
-		if(first) first=false;
-		else fragment.appendChild(document.createTextNode(" | "));
+		//replace surrogate pairs with single char
+		const contentLength=content.replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g,'_').length;
 
-		for(let key of combo.split(/ *\+ */)){
-
-			const keyElement=document.createElement("span");
-			keyElement.classList.add("key");
-			keyElement.textContent=key;
-			fragment.appendChild(keyElement);
-		}
-	}
-	while(element.firstChild) element.removeChild(element.lastChild);
-	element.appendChild(fragment);
-}
-
-//endregion
-
-//region On Change Listener
-function updateElement(target: HTMLInputElement | HTMLTextAreaElement): boolean{
-	if("rows" in target){
-		target.rows=1;
-		const parent=target.parentElement;
-		const preStyle=parent.getAttribute("style");
-		parent.style.height=parent.clientHeight+"px";
-		target.style.height="auto";
-		target.style.height=target.scrollHeight+"px";
-		if(preStyle) parent.setAttribute("style",preStyle);
-		else parent.removeAttribute("style");
-	}
-
-	function applyAnyNumber(){
-		if(target.value.length==0){
-			target.value="0";
-			target.setSelectionRange(1,1);
-		}else while(target.value.length!=1&&(target.value[0]=="0"||target.value[0]=="-")){
-			const oldSelectionStart=target.selectionStart-1;
-			const oldSelectionEnd=target.selectionEnd-1;
-			target.value=target.value.substring(1);
-			target.setSelectionRange(oldSelectionStart,oldSelectionEnd);
-		}
-		//FIXME broken caret backtracing, if moving caret in between inputs
-	}
-
-	if(target.classList.contains("long")){
-		applyAnyNumber();
-		if((+target.value)+""===target.value&&/^\d+$/.test(target.value))//if string representation of converted is same
-			(<any>target).old=[target.value,target.selectionStart,target.selectionEnd];
-		else{
-			const [value="",start,end]=(<any>target).old;
-			target.value=value;
-			target.setSelectionRange(start,end);
-		}
-	}else if(target.classList.contains("int")){
-		applyAnyNumber();
-		if((+target.value|0)+""===target.value)//if string representation of converted is same ("|0" is used to clamp to int)
-			(<any>target).old=[target.value,target.selectionStart,target.selectionEnd];
-		else{
-			const [value="",start,end]=(<any>target).old;
-			target.value=value;
-			target.setSelectionRange(start,end);
-		}
-	}else if(target.classList.contains("byte")){
-		applyAnyNumber();
-
-		if(/^-?([1-9]?\d|1\d\d|2[0-4]\d|25[0-5])$/.test(target.value))
-			(<any>target).old=[target.value,target.selectionStart,target.selectionEnd];
-		else{
-			const [value="",start,end]=(<any>target).old;
-			target.value=value;
-			target.setSelectionRange(start,end);
-		}
-	}
-	target.classList.remove("error");
-	target.removeAttribute("title");
-	return false;
-}
-
-function initChangeListener(){
-	const named=document.querySelectorAll("input[name],textarea[name],.check.box[name]");
-	for(let i=0; i<named.length; i++){
-		const element=named[i];
-		element.addEventListener("input",onInput);
-		updateElement(<HTMLInputElement | HTMLTextAreaElement>element);
-	}
-	const now=document.querySelectorAll(".now");
-	for(let i=0; i<now.length; i++){
-		const element=now[i];
-		element.addEventListener("input",onInput);
-		updateElement(<HTMLInputElement | HTMLTextAreaElement>element);
-	}
-}
-
-function onInput(evt: Event){
-	const target=<HTMLInputElement>evt.target;
-
-	const b=updateElement(target);
-	if(b){
-		evt.preventDefault();
-		evt.stopPropagation();
-	}
-	if(target.name.indexOf("=")!= -1){
-		send(target.name);
-		return;
-	}
-	const value: string | boolean=target.type=="checkbox"?target.checked: target.value;
-
-	const key=target.classList.contains("now")?target.id: target.name;
-	send(key+"="+JSON.stringify(value));
-}
-
-function setupCheckbox(checkbox: HTMLInputElement,classElement: HTMLElement=null,clazz: string="checked"){
-	checkbox.tabIndex=0;
-	if(classElement==null){
-		if(!checkbox.hasAttribute("name")||checkbox.getAttribute("name").indexOf("=")== -1)
-			checkbox.classList.add("check");
-		classElement=checkbox;
-	}
-	checkbox.classList.add("box");
-	checkbox.type="checkbox";
-	Object.defineProperty(checkbox,"name",{
-		get(): any{
-			return checkbox.getAttribute("name");
-		},
-		set(v: any): void{
-			if(v!=undefined) checkbox.setAttribute("name",v);
-			else checkbox.removeAttribute("name");
-		}
-	});
-	Object.defineProperty(checkbox,"checked",{
-		get(): any{
-			return classElement.classList.contains(clazz);
-		},
-		set(v: any): void{
-			if(v) classElement.classList.add(clazz);
-			else classElement.classList.remove(clazz);
-		}
-	});
-	Object.defineProperty(checkbox,"disabled",{
-		get(): any{
-			return checkbox.hasAttribute("disabled");
-		},
-		set(v: any): void{
-			if(v) checkbox.setAttribute("disabled","true");
-			else checkbox.removeAttribute("disabled");
-		}
-	});
-
-	function toggle(){
-		classElement.classList.toggle(clazz);
-		let event: Event;
-		if(typeof Event==="function") event=new Event("input");
-		else{
-			event=document.createEvent("Event");
-			event.initEvent("input",false,false);
-		}
-		checkbox.dispatchEvent(event);
-
-		if((checkbox.name||"").indexOf("=")!= -1)
-			receive(checkbox.name);
-	}
-
-	checkbox.addEventListener("click",()=>{
-		if(checkbox.hasAttribute("disabled")) return;
-		checkbox.focus();
-		toggle();
-	});
-	checkbox.addEventListener("keypress",(e)=>{
-		if([" ","Space","Spacebar"].indexOf(e.key)== -1) return;
-		e.preventDefault();
-		toggle();
-	});
-}
-
+		div.textContent=
+			`Length: ${contentLength}\n`+
+			`UTF-16: ${content.length}\n`+
+			`Lines: ${content.split(/\r\n|\r|\n/).length}`;
+	};
+	textarea.addEventListener("input",input);
+	input();
+});
 //endregion

@@ -1,2 +1,7 @@
-# Project exclude paths
-/obj/
+bin/
+obj/
+/packages/
+riderModule.iml
+*.user
+/_ReSharper.Caches/
+/.idea/
