@@ -6,12 +6,11 @@ namespace KeyControl.Util;
 
 [MeansImplicitUse(ImplicitUseTargetFlags.Itself)]
 [AttributeUsage(AttributeTargets.Class)]
-public class InitOnLoadAttribute:Attribute{
-	private readonly int _priority;
-	private static readonly List<(int i,Action a)> List=new();
+//Higher priority loads first
+public class InitOnLoadAttribute(int priority=0):Attribute{
+	private readonly int _priority=priority;
+	private static readonly List<(int i,Action a)> List=[];
 
-	//Higher priority loads first
-	public InitOnLoadAttribute(int priority=0)=>_priority=priority;
 
 	public static void LoadAssembly(Assembly? assembly=null){
 		assembly??=Assembly.GetCallingAssembly();

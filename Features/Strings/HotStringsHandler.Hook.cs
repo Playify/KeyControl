@@ -5,10 +5,10 @@ using PlayifyUtility.Windows.Features.Interact;
 namespace KeyControl.Features.Strings;
 
 public static partial class HotStringsHandler{
-	private static readonly Keys[] Valid={
+	private static readonly Keys[] Valid=[
 		Keys.Capital,Keys.None,Keys.Packet,Keys.Pause,Keys.Play,Keys.Print,Keys.Scroll,Keys.PrintScreen,Keys.LMenu,Keys.LControlKey,Keys.LShiftKey,Keys.MediaStop,Keys.NoName,Keys.NumLock,Keys.RMenu,Keys.RControlKey,Keys.RShiftKey,Keys.VolumeDown,
 		Keys.VolumeMute,Keys.VolumeUp,Keys.MediaNextTrack,Keys.MediaPlayPause,Keys.MediaPreviousTrack,
-	};
+	];
 
 	static HotStringsHandler(){
 		InitOnLoadAttribute.OnAfter(1,()=>{

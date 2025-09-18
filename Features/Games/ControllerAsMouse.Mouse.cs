@@ -12,7 +12,7 @@ public static partial class ControllerAsMouse{
 
 
 	private static readonly ControllerCustomButton ButtonX=new(null,s=>s.Buttons[2]);
-	private static readonly ControllerCustomButton[] AllButtons={
+	private static readonly ControllerCustomButton[] AllButtons=[
 		new("A",Keys.LButton,s=>s.Buttons[0]),//A
 		new("B",Keys.RButton,s=>s.Buttons[1]),//B
 		ButtonX,//X
@@ -25,7 +25,7 @@ public static partial class ControllerAsMouse{
 		new("DPadLeft","{Left}",s=>s.PointOfViewControllers[0] is >=22500 and <=31500),//DPad Left
 		new("DPadDown","{Down}",s=>s.PointOfViewControllers[0] is >=13500 and <=22500),//DPad Down
 		new("DPadRight","{Right}",s=>s.PointOfViewControllers[0] is >=4500 and <=13500),//DPad Right
-	};
+	];
 
 
 	private static void SelectJoystick(Joystick? joystick){

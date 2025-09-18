@@ -8,7 +8,10 @@
         <UseWindowsForms>true</UseWindowsForms>
         <LangVersion>preview</LangVersion>
         <ApplicationIcon>Resources/favicon.ico</ApplicationIcon>
-		<AssemblyVersion>3.1.0</AssemblyVersion>
+		<AssemblyVersion>3.2.0</AssemblyVersion>
+        <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+        <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
+        <OutputPath>_run</OutputPath>
     </PropertyGroup>
 
 
@@ -26,9 +29,6 @@
     </ItemGroup>
     <ItemGroup>
         <EmbeddedResource Include="Resources\**" />
-    </ItemGroup>
-    <ItemGroup>
-      <Folder Include="KeyControl2\" />
     </ItemGroup>
 
 </Project>

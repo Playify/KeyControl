@@ -14,7 +14,7 @@ namespace KeyControl.Features.Strings;
 public static partial class HotStringsHandler{
 	public const string Ending="[ \n\t]$";
 	private static readonly StringBuilder Builder=new();
-	private static readonly List<HotStringInternal> HotStrings=new(){
+	private static readonly List<HotStringInternal> HotStrings=[
 		//Complex
 		new HotStringComplexCalculate(),
 		new HotStringComplexFlip(),
@@ -22,7 +22,7 @@ public static partial class HotStringsHandler{
 		//new HotStringComplexNumberConverter(),
 
 		HotStringCategory.Master,
-	};
+	];
 
 
 	public static void Reset(){

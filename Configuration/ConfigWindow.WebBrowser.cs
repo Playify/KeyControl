@@ -44,6 +44,6 @@ public sealed partial class ConfigWindow{
 	}
 
 	private void BrowserDocumentCompleted(object? _,WebBrowserDocumentCompletedEventArgs e){
-		_browser.Document?.InvokeScript("setDarkMode",new object[]{_darkMode});
+		_browser.Document?.InvokeScript("setDarkMode",[_darkMode]);
 	}
 }

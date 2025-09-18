@@ -133,6 +133,15 @@ main
 			tr
 				td Action
 				td: textarea.action(name="Hotkeys.CapsLock.Action")
+			tr
+				td Momentarily change action
+				td: .checkbox(name="Hotkeys.CapsLock.MomentaryEnabled")
+			tr
+				td Momentary action
+				td: textarea.action(name="Hotkeys.CapsLock.MomentaryAction")
+			tr
+				td Momentary as raw text
+				td: .checkbox(name="Hotkeys.CapsLock.MomentaryIsText")
 
 
 			tr.title
@@ -155,20 +164,6 @@ main
 					span.keycombo Return
 					| afterwards
 				td: .checkbox(name="Hotkeys.Spammer.Return")
-
-
-			tr.title
-				td Custom Action
-					sub(title="Helpful for pasting text within remote desktop apps, that don't sync the clipboard.") 🛈
-			tr
-				td Perform custom action
-				td.keycombo Ctrl+Win+V
-			tr
-				td Action/Text
-				td: textarea.action(name="Hotkeys.CustomAction.Action")
-			tr
-				td Paste as raw text
-				td: .checkbox(name="Hotkeys.CustomAction.RawText")
 	#games
 		table
 			tr.title

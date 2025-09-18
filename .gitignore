@@ -1,4 +1,4 @@
-bin/
+_run/
 obj/
 /packages/
 riderModule.iml

@@ -9,10 +9,10 @@ namespace KeyControl.Features.Strings.HotStrings.SaveAble;
 [InitOnLoad]
 public class HotStringCategory:HotStringSaveAble{
 	public static readonly HotStringCategory Master=new();
-	public static readonly string[] ConfigKeys={"HotStrings","List"};
+	public static readonly string[] ConfigKeys=["HotStrings","List"];
 	private static readonly Dictionary<WebSocket,uint> Blocked=new();
 	private readonly string _category;
-	private readonly List<HotStringSaveAble> _children=new();
+	private readonly List<HotStringSaveAble> _children=[];
 
 	static HotStringCategory(){
 		var loaded=false;

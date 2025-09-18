@@ -8,11 +8,11 @@ namespace KeyControl.Features.Strings.HotStrings.Complex;
 
 //Currently excluded, as it was never used in the old KeyControl
 public class HotStringComplexNumberConverter:HotStringInternal{
-	private static readonly Regex[] Numbers={
+	private static readonly Regex[] Numbers=[
 		new("@b[dnh]([01]+)"+HotStringsHandler.Ending),
 		new("@h[dnb]([0-9a-fA-F]+)"+HotStringsHandler.Ending),
 		new("@[dn][bh]([0-9]+)"+HotStringsHandler.Ending),
-	};
+	];
 
 	public override (int bs,string s)? Replace(string s){
 		foreach(var number in Numbers)

@@ -39,7 +39,7 @@ public class ConfigServer:WebBase{
 		//*
 #if DEBUG
 		if(Debugger.IsAttached){
-			var filePath=Path.Combine("../../../Resources",path.Trim('/'));
+			var filePath=Path.Combine("../Resources",path.Trim('/'));
 			if(File.Exists(filePath)) return File.OpenRead(filePath);
 			Console.WriteLine("WebPath doesn't exist!");
 		}

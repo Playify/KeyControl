@@ -12,7 +12,7 @@ namespace KeyControl.Features.Strings.HotStrings.Complex;
 public class HotStringComplexFlip:HotStringInternal{
 	private static readonly Regex Regex=new("@flip ?(.*?)[\t\n]$",RegexOptions.IgnoreCase);
 
-	private static readonly string[] Conversion={
+	private static readonly string[] Conversion=[
 		"a","ɐ",
 		"b","q",
 		"c","ɔ",
@@ -141,7 +141,7 @@ public class HotStringComplexFlip:HotStringInternal{
 		"🙃","🙂",
 		"👍","👎",
 		"👆","👇",
-	};
+	];
 
 	static HotStringComplexFlip(){
 		ConfigServer.Register((ws,json)=>{

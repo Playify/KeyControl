@@ -1,19 +1,9 @@
-﻿using System.Diagnostics;
-using KeyControl.Configuration;
+﻿using KeyControl.Configuration;
 using KeyControl.Util;
+using PlayifyUtility.Utils;
 
-using var curr=Process.GetCurrentProcess();
-foreach(var process in Process.GetProcessesByName(curr.ProcessName)){
-	if(process.Id!=curr.Id) process.Kill();
-	process.Dispose();
-}
-
-//*
+SingleInstance.ByName("KeyControl by Playify");
 InitOnLoadAttribute.LoadAssembly();
-/*/
-typeof(HotStringSaveAble).RunClassConstructor();
-Console.WriteLine("Only loading single class!");
-//*/
 
 
 //GlobalMouseHook.Paused=GlobalKeyboardHook.Paused=true;//*/
