@@ -29,6 +29,7 @@ public static class SpecialChars{
 		},
 		json=>json.AsObject().Select(pair=>(SendBuilder.StringToKey(pair.Key),pair.Value.AsString())).ToDictionary(),
 		dict=>new JsonObject(dict.Select(pair=>(SendBuilder.KeyToString(pair.Key),(Json)pair.Value))),
+		true,
 		"SpecialChars");
 
 	static SpecialChars()=>GlobalKeyboardHook.KeyDown+=KeyDown;

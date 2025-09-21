@@ -26,7 +26,7 @@ public partial class Spammer{
 		}
 
 		internal void Apply(bool running){
-			var primaryScreen=Screen.PrimaryScreen.WorkingArea;
+			if(Screen.PrimaryScreen?.WorkingArea is not{} primaryScreen) return;
 			var corner=primaryScreen.Location+primaryScreen.Size;
 			Location=corner-Size;
 

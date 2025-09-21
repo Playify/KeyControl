@@ -22,7 +22,7 @@ public class HotStringCategory:HotStringSaveAble{
 				loaded=true;
 				Master.LoadJson(json as JsonArray??JsonArray.ParseOrNull(HotStringsHandler.Defaults)??throw new Exception("Error parsing hotstrings"));
 			}
-		});
+		},true);
 		ConfigServer.OnConnect+=ws=>{
 			foreach(var json in Master.Jsons())
 				ws.Send(json.ToString());

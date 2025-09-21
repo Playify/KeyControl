@@ -1,4 +1,5 @@
 _run/
+_dist/
 obj/
 /packages/
 riderModule.iml

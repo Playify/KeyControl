@@ -98,7 +98,15 @@ function register(keys, func) {
         var key = keys_1[_i];
         obj = (obj[key] || (obj[key] = {}));
     }
-    obj[last] = func;
+    if (obj[last]) {
+        var old_1 = obj[last];
+        obj[last] = function (value) {
+            old_1(value);
+            func(value);
+        };
+    }
+    else
+        obj[last] = func;
 }
 //endregion
 //region Navigation
@@ -149,6 +157,30 @@ function onHashChange() {
     }
 }
 //endregion
+//region Conditionals
+document.addEventListener("DOMContentLoaded", function initCheckboxes() {
+    var _loop_2 = function (conditional) {
+        var keys = conditional.getAttribute("data-if").split('.');
+        register(keys, function (b) {
+            conditional.style.display = b ? null : "none";
+        });
+    };
+    for (var _i = 0, _a = document.querySelectorAll("[data-if]"); _i < _a.length; _i++) {
+        var conditional = _a[_i];
+        _loop_2(conditional);
+    }
+    var _loop_3 = function (conditional) {
+        var keys = conditional.getAttribute("data-ifnot").split('.');
+        register(keys, function (b) {
+            conditional.style.display = !b ? null : "none";
+        });
+    };
+    for (var _b = 0, _c = document.querySelectorAll("[data-ifnot]"); _b < _c.length; _b++) {
+        var conditional = _c[_b];
+        _loop_3(conditional);
+    }
+});
+//endregion
 //region CheckBoxes
 document.addEventListener("DOMContentLoaded", function initCheckboxes() {
     for (var _i = 0, _a = document.querySelectorAll(".checkbox"); _i < _a.length; _i++) {
@@ -169,7 +201,7 @@ function setupCheckbox(checkbox, onToggle, asButton) {
         e.preventDefault();
         toggle();
     });
-    var name = checkbox.getAttribute("name");
+    var name = checkbox.getAttribute("data-name");
     if (name)
         register(name.split('.'), function (b) {
             checkbox.classList[b ? "add" : "remove"]("checked");
@@ -190,6 +222,31 @@ function setupCheckbox(checkbox, onToggle, asButton) {
         }
     }
 }
+//endregion
+//region Buttons
+document.addEventListener("DOMContentLoaded", function initCheckboxes() {
+    var _loop_4 = function (button) {
+        button.addEventListener("click", function () {
+            var _a;
+            var value = true;
+            if (button.hasAttribute("data-value")) {
+                value = (_a = button.getAttribute("data-value")) !== null && _a !== void 0 ? _a : "";
+                try {
+                    value = JSON.parse(value);
+                }
+                catch (_b) {
+                }
+            }
+            var keys = button.getAttribute("data-name").split('.');
+            keys.push(value);
+            send(keys);
+        });
+    };
+    for (var _i = 0, _a = document.querySelectorAll("button[data-name]"); _i < _a.length; _i++) {
+        var button = _a[_i];
+        _loop_4(button);
+    }
+});
 //endregion
 //region KeyCombos
 document.addEventListener("DOMContentLoaded", function initKeyCombos() {
@@ -221,21 +278,21 @@ document.addEventListener("DOMContentLoaded", function initKeyCombos() {
 document.addEventListener("DOMContentLoaded", function () {
     var button = document.getElementById("rotateWasd");
     button.onclick = function () { return send(["Games", "Wasd", 0]); };
-    var _loop_2 = function (checkbox) {
+    var _loop_5 = function (checkbox) {
         setupCheckbox(checkbox, function () {
-            send(["Games", "Wasd", +checkbox.getAttribute("value")]);
+            send(["Games", "Wasd", +checkbox.getAttribute("data-value")]);
         }, true);
     };
     for (var _i = 0, _a = document.querySelectorAll(".rotateWasd .box"); _i < _a.length; _i++) {
         var checkbox = _a[_i];
-        _loop_2(checkbox);
+        _loop_5(checkbox);
     }
     register(["Games", "Wasd"], function (i) {
         for (var _i = 0, _a = document.querySelectorAll(".rotateWasd .checked"); _i < _a.length; _i++) {
             var checked = _a[_i];
             checked.classList.remove("checked");
         }
-        document.querySelector(".rotateWasd .box[value='" + i + "']").classList.add("checked");
+        document.querySelector(".rotateWasd .box[data-value='" + i + "']").classList.add("checked");
         button.style.visibility = i == 0 ? "hidden" : "visible";
     });
 });
@@ -247,9 +304,9 @@ document.addEventListener("DOMContentLoaded", function () {
         var textarea = _a[_i];
         initTextArea(textarea);
     }
-    var _loop_3 = function (input) {
+    var _loop_6 = function (input) {
         var systemValue = null; //If never received a value, then don't override on blur
-        register(input.getAttribute("name").split('.'), function (v) {
+        register(input.getAttribute("data-name").split('.'), function (v) {
             systemValue = input.classList.contains("color") ? v.toString(16).toUpperCase() : v.toString();
             if (document.activeElement == input)
                 return; //Don't override while focused
@@ -259,7 +316,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 input.autoSize();
         });
         var sendValue = function (v) {
-            var keys = input.getAttribute("name").split('.');
+            var keys = input.getAttribute("data-name").split('.');
             keys.push(v);
             send(keys);
         };
@@ -319,9 +376,9 @@ document.addEventListener("DOMContentLoaded", function () {
                 input.autoSize();
         });
     };
-    for (var _b = 0, _c = document.querySelectorAll("input[name],textarea[name]"); _b < _c.length; _b++) {
+    for (var _b = 0, _c = document.querySelectorAll("input[data-name],textarea[data-name]"); _b < _c.length; _b++) {
         var input = _c[_b];
-        _loop_3(input);
+        _loop_6(input);
     }
 });
 function initTextArea(textarea) {
@@ -741,7 +798,7 @@ var HotStringEmoji = /** @class */ (function (_super) {
         return {
             From: this._from.value,
             Emoji: this._emoji.value,
-            Regex: this._regex.value || undefined,
+            Regex: this._regex.value || undefined, //use value, but if empty string then dont send anything
             IgnoreCase: this._ignoreCase.classList.contains("checked") || undefined
         };
     };

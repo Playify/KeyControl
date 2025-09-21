@@ -97,7 +97,13 @@ function register(keys:string[],func:(value:any)=>void){
 	let obj=registered;
 	const last=keys.pop()!;
 	for(let key of keys) obj=(obj[key]||={});
-	obj[last]=func;
+	if(obj[last]){
+		const old=obj[last];
+		obj[last]=(value:any)=>{
+			old(value);
+			func(value);
+		}
+	}else obj[last]=func;
 }
 
 //endregion
@@ -142,6 +148,23 @@ function onHashChange(){
 
 //endregion
 
+//region Conditionals
+document.addEventListener("DOMContentLoaded",function initCheckboxes(){
+	for(let conditional of (document.querySelectorAll("[data-if]") as any as HTMLButtonElement[])){
+		const keys=conditional.getAttribute("data-if")!.split('.');
+		register(keys,b=>{
+			conditional.style.display=b?null!:"none";
+		});
+	}
+	for(let conditional of (document.querySelectorAll("[data-ifnot]") as any as HTMLButtonElement[])){
+		const keys=conditional.getAttribute("data-ifnot")!.split('.');
+		register(keys,b=>{
+			conditional.style.display=!b?null!:"none";
+		});
+	}
+});
+//endregion
+
 //region CheckBoxes
 document.addEventListener("DOMContentLoaded",function initCheckboxes(){
 	for(const checkbox of document.querySelectorAll(".checkbox") as any as HTMLElement[])
@@ -163,7 +186,7 @@ function setupCheckbox(checkbox:HTMLElement,onToggle?:(b:boolean)=>void,asButton
 		e.preventDefault();
 		toggle();
 	});
-	const name=checkbox.getAttribute("name");
+	const name=checkbox.getAttribute("data-name");
 	if(name) register(name.split('.'),b=>{
 		checkbox.classList[b?"add":"remove"]("checked");
 		onToggle&&onToggle(b);
@@ -183,6 +206,27 @@ function setupCheckbox(checkbox:HTMLElement,onToggle?:(b:boolean)=>void,asButton
 	}
 }
 
+//endregion
+
+//region Buttons
+document.addEventListener("DOMContentLoaded",function initCheckboxes(){
+
+	for(let button of (document.querySelectorAll("button[data-name]") as any as HTMLButtonElement[])){
+		button.addEventListener("click",()=>{
+			let value:any=true;
+			if(button.hasAttribute("data-value")){
+				value=button.getAttribute("data-value")??"";
+				try{
+					value=JSON.parse(value);
+				}catch{
+				}
+			}
+			const keys=button.getAttribute("data-name")!.split('.');
+			keys.push(value);
+			send(keys);
+		});
+	}
+});
 //endregion
 
 //region KeyCombos
@@ -216,14 +260,14 @@ document.addEventListener("DOMContentLoaded",()=>{
 
 	for(let checkbox of (document.querySelectorAll(".rotateWasd .box") as any as HTMLElement[])){
 		setupCheckbox(checkbox,()=>{
-			send(["Games","Wasd",+checkbox.getAttribute("value")!])
+			send(["Games","Wasd",+checkbox.getAttribute("data-value")!])
 		},true);
 	}
 
 	register(["Games","Wasd"],i=>{
 		for(let checked of document.querySelectorAll(".rotateWasd .checked") as any as HTMLElement[])
 			checked.classList.remove("checked");
-		document.querySelector(".rotateWasd .box[value='"+i+"']")!.classList.add("checked");
+		document.querySelector(".rotateWasd .box[data-value='"+i+"']")!.classList.add("checked");
 		button.style.visibility=i==0?"hidden":"visible";
 	});
 });
@@ -236,10 +280,10 @@ document.addEventListener("DOMContentLoaded",()=>{
 	for(let textarea of (document.querySelectorAll("textarea") as any as HTMLTextAreaElement[]))
 		initTextArea(textarea);
 
-	for(let input of (document.querySelectorAll("input[name],textarea[name]") as any as (HTMLInputElement | HTMLTextAreaElement)[])){
+	for(let input of (document.querySelectorAll("input[data-name],textarea[data-name]") as any as (HTMLInputElement | HTMLTextAreaElement)[])){
 		let systemValue:string | null=null;//If never received a value, then don't override on blur
 
-		register(input.getAttribute("name")!.split('.'),v=>{
+		register(input.getAttribute("data-name")!.split('.'),v=>{
 			systemValue=input.classList.contains("color")?(v as number).toString(16).toUpperCase():v.toString();
 
 			if(document.activeElement==input) return;//Don't override while focused
@@ -249,7 +293,7 @@ document.addEventListener("DOMContentLoaded",()=>{
 			if("autoSize" in input) input.autoSize();
 		});
 		const sendValue=(v:any)=>{
-			const keys=input.getAttribute("name")!.split('.');
+			const keys=input.getAttribute("data-name")!.split('.');
 			keys.push(v);
 			send(keys);
 		}

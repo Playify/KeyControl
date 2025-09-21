@@ -9,15 +9,21 @@ public static class Config{
 	private static readonly string ConfigPath;
 	private static readonly object FileLock=new();
 	private static JsonObject? _root;
-	private static readonly Dictionary<string[],Action<Json?>> Listeners=new();
+	private static readonly Dictionary<string[],(Action<Json?> action,bool file)> Listeners=new();
 
 	private static readonly Version Version=Assembly.GetExecutingAssembly().GetName().Version!;
-	public static readonly string VersionString="KeyControl "+Version.ToString(Version.Build!=0?3:2);
+	public static readonly string VersionNumber=Version.ToString(Version.Build!=0?3:2);
+	public static readonly string VersionString="KeyControl "+VersionNumber;
 
 	static Config(){
-		var configDirectory=Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),"KeyControl");
-		Directory.CreateDirectory(configDirectory);
-		ConfigPath=Path.Combine(configDirectory,"config.json");
+		if(File.Exists("config.json")) ConfigPath="config.json";
+		else{
+			var configDirectory=Path.Combine(
+				Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+				"KeyControl");
+			Directory.CreateDirectory(configDirectory);
+			ConfigPath=Path.Combine(configDirectory,"config.json");
+		}
 	}
 
 	public static void Load(){
@@ -30,8 +36,9 @@ public static class Config{
 				_root=new JsonObject();
 			} else _root=json;
 
-		foreach(var (key,value) in Listeners)
-			value(key.Aggregate((Json?)_root,(j,s)=>j?.Get(s)));
+		foreach(var (key,(action,file)) in Listeners)
+			if(file)
+				action(key.Aggregate((Json?)_root,(j,s)=>j?.Get(s)));
 	}
 
 
@@ -43,7 +50,7 @@ public static class Config{
 
 
 	public static void Update(string[] keys,Json value){
-		foreach(var (key,action) in Listeners)
+		foreach(var (key,(action,_)) in Listeners)
 			if(key.SequenceEqual(keys)){
 				action(value);
 				return;
@@ -69,8 +76,8 @@ public static class Config{
 	}
 
 
-	public static void Listen(string[] keys,Action<Json?> action){
+	public static void Listen(string[] keys,Action<Json?> action,bool file){
 		Debug.WriteLine("Listening to "+keys.Join("."));
-		Listeners[keys]=action;
+		Listeners[keys]=(action,file);
 	}
 }

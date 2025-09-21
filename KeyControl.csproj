@@ -14,6 +14,13 @@
         <OutputPath>_run</OutputPath>
     </PropertyGroup>
 
+    <PropertyGroup>
+        <PublishSingleFile>true</PublishSingleFile>
+        <SelfContained>false</SelfContained>
+        <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+        <PublishDir>_dist</PublishDir>
+        <!--PublishTrimmed is not supported by WinForms, and also breaks Reflection-->
+    </PropertyGroup>
 
     <ItemGroup>
         <PackageReference Include="NCalc.NetCore" Version="1.0.1" />
@@ -26,8 +33,33 @@
         <Compile Update="Features\Keyboard\Spammer.Indicator.cs">
             <DependentUpon>Spammer.cs</DependentUpon>
         </Compile>
+        <Compile Update="Features\Games\ControllerAsMouse.Mouse.cs">
+          <DependentUpon>ControllerAsMouse.cs</DependentUpon>
+        </Compile>
+        <Compile Update="Features\Hotkeys\Advanced\Spammer.Indicator.cs">
+          <DependentUpon>Spammer.cs</DependentUpon>
+        </Compile>
+        <Compile Update="Features\Strings\HotStringsHandler.Defaults.cs">
+          <DependentUpon>HotStringsHandler.cs</DependentUpon>
+        </Compile>
+        <Compile Update="Features\Strings\HotStringsHandler.Hook.cs">
+          <DependentUpon>HotStringsHandler.cs</DependentUpon>
+        </Compile>
+        <Compile Update="Features\Windows\MoveWindows.F1.cs">
+          <DependentUpon>MoveWindows.cs</DependentUpon>
+        </Compile>
+        <Compile Update="Features\Windows\MoveWindows.Mouse.cs">
+          <DependentUpon>MoveWindows.cs</DependentUpon>
+        </Compile>
+        <Compile Update="Features\KeyControlSettings.Shortcut.cs">
+          <DependentUpon>KeyControlSettings.cs</DependentUpon>
+        </Compile>
+        <Compile Update="Configuration\ConfigWindow.WebBrowser.cs">
+          <DependentUpon>ConfigWindow.cs</DependentUpon>
+        </Compile>
     </ItemGroup>
     <ItemGroup>
+        <None Remove="_dist\**" />
         <EmbeddedResource Include="Resources\**" />
     </ItemGroup>
 

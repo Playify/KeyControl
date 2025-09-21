@@ -1,3 +1,4 @@
+using KeyControl.Features;
 using KeyControl.Util;
 using PlayifyUtility.Windows;
 using PlayifyUtility.Windows.Features.Hooks;
@@ -15,24 +16,30 @@ public sealed partial class ConfigWindow:Form{
 	static ConfigWindow(){
 		using (var stream=ConfigServer.OpenFile("/favicon.ico")) ProgramIcon=new Icon(stream!);
 
-		ToolStripMenuItem pause=null!;
-		// ReSharper disable once AccessToModifiedClosure
-		pause=new ToolStripMenuItem("Pause",null,(_,_)=>{
+
+		var strip=new ContextMenuStrip{
+			Items={
+				{"Settings",null,(_,_)=>ToggleOpen()},
+				{"&Unhide all",null,(_,_)=>WinWindow.RestoreAll()},
+				{"&Exit and unhide all",null,(_,_)=>Environment.Exit(0)},
+			},
+		};
+		ToolStripItem pause=null!;
+		pause=strip.Items.Add("Pause",null,(_,_)=>{
 			var paused=Utils.Paused^=true;
+			// ReSharper disable once AccessToModifiedClosure
 			pause.Text=paused?"Resume":"Pause";
 		});
+
+		//Only show quick install option, if not running in portable mode. For now, install is still available in menu, but it isn't in the way there
+		if(!KeyControlSettings.Install.Value&&!File.Exists("config.json"))
+			strip.Items.Add("Install",null,(_,_)=>KeyControlSettings.InstallSelf(false));
+
 
 		var notifyIcon=new NotifyIcon{
 			Icon=ProgramIcon,
 			Text=Config.VersionString,
-			ContextMenuStrip=new ContextMenuStrip{
-				Items={
-					{"Settings",null,(_,_)=>ToggleOpen()},
-					{"&Unhide all",null,(_,_)=>WinWindow.RestoreAll()},
-					{"&Exit and unhide all",null,(_,_)=>Environment.Exit(0)},
-					pause,
-				},
-			},
+			ContextMenuStrip=strip,
 		};
 		var first=notifyIcon.ContextMenuStrip.Items[0];
 		first.Font=new Font(first.Font,first.Font.Style|FontStyle.Bold);

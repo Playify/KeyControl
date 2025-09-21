@@ -62,7 +62,7 @@ public static partial class MoveWindows{
 
 	public static bool RunF1(bool swap=false){
 		var window=WinWindow.Foreground;
-		bool handled=true;
+		var handled=true;
 		if(!WinCursor.TryGetCursorPos(out var cursorPos)||!IsValidWindow(window,cursorPos,out handled)){
 			lock(typeof(MoveWindows))
 				_f1Running=false;
