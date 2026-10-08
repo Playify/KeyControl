@@ -155,6 +155,9 @@ public sealed partial class ConfigWindow:Form{
 		Visible=true;
 		Focus();
 		new WinWindow(Handle).SetForeground();
+
+		if(WindowState==FormWindowState.Normal)
+			TopMost=true;
 	}
 
 	public static void ToggleOpen()=>Instance.Invoke(()=>Instance._ToggleOpen());

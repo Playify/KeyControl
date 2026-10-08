@@ -16,10 +16,12 @@ public static partial class MoveWindows{
 
 	private static void KeyDown(KeyEvent e){
 		if(e.Key!=Keys.F1&&!(e.Key==Keys.Packet&&EnableVive.Value&&e.ScanCode=='£')) return;
-		_f1Down=e.Key==Keys.F1;
+		var mods=Modifiers.Combined;
+		
+		_f1Down=e.Key==Keys.F1&&
+		        (((mods&ModifierKeys.Windows)!=0&&(mods&ModifierKeys.Control)!=0)||mods==ModifierKeys.None);
 		if(!EnableF1.Value) return;
 
-		var mods=Modifiers.Combined;
 
 		//If only windows is pressed, then do normal F1
 		if(mods==ModifierKeys.Windows){
@@ -90,7 +92,9 @@ public static partial class MoveWindows{
 		//Some windows should not be moved, as they cause trouble otherwise
 		if((window.Title?.EndsWith(" - Administratorzugriff - Getscreen.me - Google Chrome")??false)
 		   &&((Rectangle)window.WindowRect).Contains(cursorPos)) return handled=false;
-		if(Path.GetFileName(window.ProcessExe)=="paintdotnet.exe"&&(window.ExStyle&ExStyle.ToolWindow)!=0) return false;
+		var processExe=Path.GetFileName(window.ProcessExe);
+		if(processExe=="paintdotnet.exe"&&(window.ExStyle&ExStyle.ToolWindow)!=0) return false;
+		if(processExe=="PowerToys.MouseWithoutBordersHelper.exe") return handled=false;
 
 		return true;
 	}

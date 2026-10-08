@@ -1,6 +1,0 @@
-﻿<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
-	<s:Boolean x:Key="/Default/AddReferences/RecentPaths/=D_003A_005CTE_005FAPP_005FDEV_005CProjects_005CalsoAtHome_005CPlayifyUtility_005FCSharp_005C_005Frun_005Cnet6_002E0_002Dwindows_005CPlayifyUtility_002EWindows_002Edll/@EntryIndexedValue">True</s:Boolean>
-	<s:Boolean x:Key="/Default/AddReferences/RecentPaths/=D_003A_005CTE_005FAPP_005FDEV_005CProjects_005CalsoAtHome_005CPlayifyUtility_005FCSharp_005C_005Frun_005Cnet6_002E0_005CPlayifyUtility_002Edll/@EntryIndexedValue">True</s:Boolean>
-	<s:Boolean x:Key="/Default/AddReferences/RecentPaths/=S_003A_005CCode_005CC_0023_005Cown_005CPlayifyUtility_005C_005Frun_005Cnet6_002E0_002Dwindows_005CPlayifyUtility_002EWindows_002Edll/@EntryIndexedValue">True</s:Boolean>
-	<s:Boolean x:Key="/Default/AddReferences/RecentPaths/=S_003A_005CCode_005CC_0023_005Cown_005CPlayifyUtility_005C_005Frun_005Cnet6_002E0_005CPlayifyUtility_002Edll/@EntryIndexedValue">True</s:Boolean>
-	</wpf:ResourceDictionary>

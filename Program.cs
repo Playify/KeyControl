@@ -1,4 +1,5 @@
-﻿using KeyControl.Configuration;
+﻿using System.Diagnostics;
+using KeyControl.Configuration;
 using KeyControl.Features;
 using KeyControl.Util;
 using PlayifyUtility.Utils;
@@ -23,6 +24,8 @@ if(args.Contains("--install")){
 	Environment.Exit(0);
 	return;
 }
+
+Process.GetCurrentProcess().PriorityClass=ProcessPriorityClass.AboveNormal;
 
 InitOnLoadAttribute.LoadAssembly();
 
